@@ -14,7 +14,7 @@
 // NMec: 118799
 // Name: Daniel Zamurca
 // NMec: //!
-// Name: TÃ³mas //!
+// Name: Tómas //!
 //
 // Date: 07/11/2025
 //
@@ -696,7 +696,7 @@ int ImageRegionFillingRecursive(Image img, int u, int v, uint16 color) {
 
     uint16 background = img->image[v][u];  // cor original do pixel de partida
 
-    // Se o pixel jÃ¡ estiver com a cor da regiÃ£o, nÃ£o faz nada
+    // Se o pixel já estiver com a cor da região, não faz nada
     if (background == color) return 0;
 
     // Pinta o pixel atual com a nova cor
@@ -704,8 +704,8 @@ int ImageRegionFillingRecursive(Image img, int u, int v, uint16 color) {
     int number_labeled_pixels = 1;  // conta este pixel
 
 
-    //TODO VER SE DÃ PARA FAZER DA MANEIRA DO GUIAO SEM DAR ERRO NO ASSERT
-    // Explorar vizinhos (4-direÃ§Ãµes) sÃ³ se forem vÃ¡lidos e tiverem a cor de background
+    //TODO VER SE DÁ PARA FAZER DA MANEIRA DO GUIAO SEM DAR ERRO NO ASSERT
+    // Explorar vizinhos (4-direções) só se forem válidos e tiverem a cor de background
     if (ImageIsValidPixel(img, u+1, v) && img->image[v][u+1] == background)
        number_labeled_pixels += ImageRegionFillingRecursive(img, u+1, v, color);
     if (ImageIsValidPixel(img, u-1, v) && img->image[v][u-1] == background)
@@ -715,7 +715,7 @@ int ImageRegionFillingRecursive(Image img, int u, int v, uint16 color) {
     if (ImageIsValidPixel(img, u, v-1) && img->image[v-1][u] == background)
        number_labeled_pixels += ImageRegionFillingRecursive(img, u, v-1, color);
 
-    return number_labeled_pixels;  // nÃºmero total de pixels pintados
+    return number_labeled_pixels;  // número total de pixels pintados
 
     //!
 }
@@ -730,26 +730,26 @@ int ImageRegionFillingWithSTACK(Image img, int u, int v, uint16 label) {
 
   //!
   Stack* stack = StackCreate(1000); //! SIZE??????????
-  //? verificaÃ§Ã£o de stackcreate?
+  //? verificação de stackcreate?
 
   PixelCoords p = PixelCoordsCreate(u,v); //? create an object to create pixels 
   StackPush(stack, p);
 
   int pixels_painted = 0;
-  /*
+
   while (!StackIsEmpty(stack)) {
       // Desempilha o pixel do topo
       PixelCoords p = StackPop(stack);
       int x = PixelCoordsGetU(p);
       int y = PixelCoordsGetV(p);
 
-      // Verifica se Ã© vÃ¡lido e se tem a cor de background
-      if (ImageIsValidPixel(img, x, y) && img->image[y][x] == background_label) {
+      // Verifica se é válido e se tem a cor de background
+      /*if (ImageIsValidPixel(img, x, y) && img->image[y][x] == background_label) {
           // Pinta com a nova cor
           img->image[y][x] = new_label;
           pixels_painted++;
 
-          // Cria instÃ¢ncias para os 4 vizinhos e empilha
+          // Cria instâncias para os 4 vizinhos e empilha
           PixelCoords p_right = PixelCoordsCreate(x + 1, y);
           PixelCoords p_left  = PixelCoordsCreate(x - 1, y);
           PixelCoords p_down  = PixelCoordsCreate(x, y + 1);
@@ -764,6 +764,7 @@ int ImageRegionFillingWithSTACK(Image img, int u, int v, uint16 label) {
   StackDestroy(&stack);
   return pixels_painted;
   */
+  //!
 }
 
 /// Region growing using a QUEUE of pixel coordinates to

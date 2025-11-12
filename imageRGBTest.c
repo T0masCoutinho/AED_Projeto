@@ -1,8 +1,20 @@
+// imageRGBTest - A program that performs some operations on RGB images.
+//
+// This program is an example use of the imageRGB module,
+// a programming project for the course AED, DETI / UA.PT
+//
+// You may freely use and modify this code, NO WARRANTY, blah blah,
+// as long as you give proper credit to the original and subsequent authors.
+//
+// The AED Team <jmadeira@ua.pt, jmr@ua.pt, ...>
+// 2025
+
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "error.h"
 #include "imageRGB.h"
 #include "instrumentation.h"
@@ -73,7 +85,6 @@ int main(int argc, char* argv[]) {
 
   //!------------------------------------------------------------------------------
 
-  //
   printf("10) Image Rotate 90 degrees\n");
   Image rotated_image = ImageRotate90CW(image_2);
   ImageSavePPM(rotated_image, "rotated_image.ppm");
@@ -81,7 +92,8 @@ int main(int argc, char* argv[]) {
   printf("Rotated image 180 degrees:\n");
   Image rotated_image_180 = ImageRotate180CW(image_2);
   ImageSavePPM(rotated_image_180, "rotated_image_180.ppm");
-  //-----------------------------------------------------------------------------
+
+  //!-----------------------------------------------------------------------------
 
   ImageDestroy(&white_image);
   ImageDestroy(&black_image);
