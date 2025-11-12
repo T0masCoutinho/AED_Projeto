@@ -601,10 +601,30 @@ int ImageIsDifferent(const Image img1, const Image img2) {
 Image ImageRotate90CW(const Image img) {
   assert(img != NULL);
 
-  // TO BE COMPLETED
-  // ...
+  uint32 oldW = img->width;
+  uint32 oldH = img->height;
 
-  return NULL;
+  // new image has width = oldH, height = oldW
+  Image out = AllocateImageHeader(oldH, oldW);
+
+  // copy LUT and number of colors
+  out->num_colors = img->num_colors;
+  memcpy(out->LUT, img->LUT, out->num_colors * sizeof(rgb_t));
+
+  // allocate rows (out->height rows, each of length out->width)
+  for (uint32 i = 0; i < out->height; i++) {
+    out->image[i] = AllocateRowArray(out->width);
+  }
+
+  // For each pixel in the source, place it in the rotated position:
+  // src (u,v) -> dst (u' = v, v' = oldW-1-u)
+  for (uint32 v = 0; v < oldH; v++) {
+    for (uint32 u = 0; u < oldW; u++) {
+      out->image[oldW - 1 - u][v] = img->image[v][u];
+    }
+  }
+
+  return out;
 }
 
 /// Rotate 180 degrees clockwise (CW).
@@ -616,10 +636,29 @@ Image ImageRotate90CW(const Image img) {
 Image ImageRotate180CW(const Image img) {
   assert(img != NULL);
 
-  // TO BE COMPLETED
-  // ...
+  uint32 oldW = img->width;
+  uint32 oldH = img->height;
 
-  return NULL;
+  // new image has same dimensions
+  Image out = AllocateImageHeader(oldW, oldH);
+
+  // copy LUT and number of colors
+  out->num_colors = img->num_colors;
+  memcpy(out->LUT, img->LUT, out->num_colors * sizeof(rgb_t));
+
+  // allocate rows
+  for (uint32 i = 0; i < out->height; i++) {
+    out->image[i] = AllocateRowArray(out->width);
+  }
+
+  // src (u,v) -> dst (u' = oldW-1-u, v' = oldH-1-v)
+  for (uint32 v = 0; v < oldH; v++) {
+    for (uint32 u = 0; u < oldW; u++) {
+      out->image[oldH - 1 - v][oldW - 1 - u] = img->image[v][u];
+    }
+  }
+
+  return out;
 }
 
 /// Check whether pixel coords (u, v) are inside img.
@@ -697,7 +736,7 @@ int ImageRegionFillingWithSTACK(Image img, int u, int v, uint16 label) {
   StackPush(stack, p);
 
   int pixels_painted = 0;
-
+  /*
   while (!StackIsEmpty(stack)) {
       // Desempilha o pixel do topo
       PixelCoords p = StackPop(stack);
@@ -724,7 +763,7 @@ int ImageRegionFillingWithSTACK(Image img, int u, int v, uint16 label) {
   }
   StackDestroy(&stack);
   return pixels_painted;
-  //!
+  */
 }
 
 /// Region growing using a QUEUE of pixel coordinates to

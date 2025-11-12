@@ -1,20 +1,8 @@
-// imageRGBTest - A program that performs some operations on RGB images.
-//
-// This program is an example use of the imageRGB module,
-// a programming project for the course AED, DETI / UA.PT
-//
-// You may freely use and modify this code, NO WARRANTY, blah blah,
-// as long as you give proper credit to the original and subsequent authors.
-//
-// The AED Team <jmadeira@ua.pt, jmr@ua.pt, ...>
-// 2025
-
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "error.h"
 #include "imageRGB.h"
 #include "instrumentation.h"
@@ -66,6 +54,34 @@ int main(int argc, char* argv[]) {
   printf("8) ImageCreatePalete\n");
   Image image_3 = ImageCreatePalete(4 * 32, 4 * 32, 4);
   ImageSavePPM(image_3, "palete.ppm");
+
+  //!------------------------------------------------------------------------------
+  
+  printf("9) ImageRegionFillingRecursive \n");
+
+  // Criar uma pequena imagem tipo tabuleiro de xadrez
+  //Image test_img = ImageCreateChess(20, 20, 5, 0x000000); // branco e preto
+  //ImageSavePPM(test_img, "region_before.ppm");
+
+  // Chamar a função de preenchimento
+  int filled_pixels = ImageRegionFillingRecursive(black_image, 1, 1, 0);
+
+  printf("Píxeis pintados: %d\n", filled_pixels);
+
+  // Guardar o resultado para comparação
+  ImageSavePPM(black_image, "region_after.ppm");
+
+  //!------------------------------------------------------------------------------
+
+  //
+  printf("10) Image Rotate 90 degrees\n");
+  Image rotated_image = ImageRotate90CW(image_2);
+  ImageSavePPM(rotated_image, "rotated_image.ppm");
+
+  printf("Rotated image 180 degrees:\n");
+  Image rotated_image_180 = ImageRotate180CW(image_2);
+  ImageSavePPM(rotated_image_180, "rotated_image_180.ppm");
+  //-----------------------------------------------------------------------------
 
   ImageDestroy(&white_image);
   ImageDestroy(&black_image);
