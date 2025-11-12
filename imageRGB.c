@@ -729,13 +729,18 @@ int ImageRegionFillingWithSTACK(Image img, int u, int v, uint16 label) {
   assert(label < FIXED_LUT_SIZE);
 
   //!
-  Stack* stack = StackCreate(1000); //! SIZE??????????
-  //? verificação de stackcreate?
-
+  Stack* stack = StackCreate(10000); //! SIZE??????????
   PixelCoords p = PixelCoordsCreate(u,v); //? create an object to create pixels 
   StackPush(stack, p);
 
   int pixels_painted = 0;
+  uint16 background = img->image[v][u];  // cor original do pixel de partida
+
+  // Se o pixel já estiver com a cor da região, não faz nada
+  if (background == label) {
+    StackDestroy(&stack);
+    return 0;
+  }
 
   while (!StackIsEmpty(stack)) {
       // Desempilha o pixel do topo
@@ -744,26 +749,19 @@ int ImageRegionFillingWithSTACK(Image img, int u, int v, uint16 label) {
       int y = PixelCoordsGetV(p);
 
       // Verifica se é válido e se tem a cor de background
-      /*if (ImageIsValidPixel(img, x, y) && img->image[y][x] == background_label) {
-          // Pinta com a nova cor
-          img->image[y][x] = new_label;
-          pixels_painted++;
+      if (ImageIsValidPixel(img, x, y) && img->image[y][x] == background) {
+            img->image[y][x] = label;  // pinta o pixel
+            pixels_painted++;
 
-          // Cria instâncias para os 4 vizinhos e empilha
-          PixelCoords p_right = PixelCoordsCreate(x + 1, y);
-          PixelCoords p_left  = PixelCoordsCreate(x - 1, y);
-          PixelCoords p_down  = PixelCoordsCreate(x, y + 1);
-          PixelCoords p_up    = PixelCoordsCreate(x, y - 1);
-
-          StackPush(stack, p_right);
-          StackPush(stack, p_left);
-          StackPush(stack, p_down);
-          StackPush(stack, p_up);
-      }
+            // Empilha os 4 vizinhos
+            StackPush(stack, PixelCoordsCreate(x + 1, y));
+            StackPush(stack, PixelCoordsCreate(x - 1, y));
+            StackPush(stack, PixelCoordsCreate(x, y + 1));
+            StackPush(stack, PixelCoordsCreate(x, y - 1));
+        }
   }
   StackDestroy(&stack);
   return pixels_painted;
-  */
   //!
 }
 

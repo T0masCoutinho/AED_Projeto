@@ -71,21 +71,30 @@ int main(int argc, char* argv[]) {
   
   printf("9) ImageRegionFillingRecursive \n");
 
-  // Criar uma pequena imagem tipo tabuleiro de xadrez
-  //Image test_img = ImageCreateChess(20, 20, 5, 0x000000); // branco e preto
-  //ImageSavePPM(test_img, "region_before.ppm");
-
   // Chamar a função de preenchimento
-  int filled_pixels = ImageRegionFillingRecursive(black_image, 1, 1, 0);
+  int filled_pixels = ImageRegionFillingRecursive(black_image, 1, 1, 0); //! COMO È QUE AQUI È 0 PASSADO 
 
   printf("Píxeis pintados: %d\n", filled_pixels);
 
   // Guardar o resultado para comparação
-  ImageSavePPM(black_image, "region_after.ppm");
+  ImageSavePPM(black_image, "filling_recursive_image.ppm");
 
   //!------------------------------------------------------------------------------
 
-  printf("10) Image Rotate 90 degrees\n");
+  printf("10) ImageRegionFillingWithSTACK (teste manual)\n");
+
+  // Chamar a função de preenchimento com stack
+  int filled_pixels_stack = ImageRegionFillingWithSTACK(black_image, 1, 1, 1); //! E COMO AQUI È 1 PASSADO E OS RESULTADOS SAO IGUAIS
+
+  // Mostrar resultados
+  printf("Píxeis pintados (com stack): %d\n", filled_pixels_stack);
+
+  // Guardar o resultado para comparação
+  ImageSavePPM(black_image, "filling_stack_image.ppm");
+
+  //!-----------------------------------------------------------------------------
+
+  printf("11) Image Rotate 90 degrees\n");
   Image rotated_image = ImageRotate90CW(image_2);
   ImageSavePPM(rotated_image, "rotated_image.ppm");
 
@@ -94,6 +103,9 @@ int main(int argc, char* argv[]) {
   ImageSavePPM(rotated_image_180, "rotated_image_180.ppm");
 
   //!-----------------------------------------------------------------------------
+
+
+  // Libertar memória
 
   ImageDestroy(&white_image);
   ImageDestroy(&black_image);
