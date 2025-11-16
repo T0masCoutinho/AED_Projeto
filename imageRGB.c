@@ -568,8 +568,13 @@ int ImageIsEqual(const Image img1, const Image img2) {
   assert(img2 != NULL);
 
   //!
-  // TO BE COMPLETED
-  // ...
+  //* Ver de heigth, width, num_colors sao iguais nas duas imagens
+
+  //*Ver as cores e index da LUT de cada imagem (NOTE: The same rgb color may correspond to different LUT labels in different images) 
+
+  //* Ver pixel a pixel se as imagens tem o mesmo index da cor correspondente
+
+  
   //TODO LUTAllocColor
   //TODO LUTFindColor
 
@@ -582,7 +587,7 @@ int ImageIsDifferent(const Image img1, const Image img2) {
   assert(img2 != NULL);
 
   return !ImageIsEqual(img1, img2);
-}
+} //TODO CONFIRMAR DEPOIS ESTA FUNÇÃO
 
 /// Geometric transformations
 
@@ -617,13 +622,12 @@ Image ImageRotate90CW(const Image img) {
   }
 
   // For each pixel in the source, place it in the rotated position:
-  // src (u,v) -> dst (u' = v, v' = oldW-1-u)
+  // src (u,v) -> dst( u' = v, v' = newH-1-u )
   for (uint32 v = 0; v < oldH; v++) {
-    for (uint32 u = 0; u < oldW; u++) {
-      out->image[oldW - 1 - u][v] = img->image[v][u];
-    }
+      for (uint32 u = 0; u < oldW; u++) {
+          out->image[u][oldH - 1 - v] = img->image[v][u];
+      }
   }
-
   return out;
 }
 
@@ -693,7 +697,6 @@ int ImageRegionFillingRecursive(Image img, int u, int v, uint16 color) {
     assert(color < FIXED_LUT_SIZE);
 
     //!
-
     uint16 background = img->image[v][u];  // cor original do pixel de partida
 
     // Se o pixel já estiver com a cor da região, não faz nada
@@ -702,7 +705,6 @@ int ImageRegionFillingRecursive(Image img, int u, int v, uint16 color) {
     // Pinta o pixel atual com a nova cor
     img->image[v][u] = color;
     int number_labeled_pixels = 1;  // conta este pixel
-
 
     //TODO VER SE DÁ PARA FAZER DA MANEIRA DO GUIAO SEM DAR ERRO NO ASSERT
     // Explorar vizinhos (4-direções) só se forem válidos e tiverem a cor de background
@@ -716,7 +718,6 @@ int ImageRegionFillingRecursive(Image img, int u, int v, uint16 color) {
        number_labeled_pixels += ImageRegionFillingRecursive(img, u, v-1, color);
 
     return number_labeled_pixels;  // número total de pixels pintados
-
     //!
 }
 
@@ -772,8 +773,10 @@ int ImageRegionFillingWithQUEUE(Image img, int u, int v, uint16 label) {
   assert(ImageIsValidPixel(img, u, v));
   assert(label < FIXED_LUT_SIZE);
 
+  //!
   // TO BE COMPLETED
   // ...
+  //!
 
   return 0;
 }
@@ -792,8 +795,10 @@ int ImageSegmentation(Image img, FillingFunction fillFunct) {
   assert(img != NULL);
   assert(fillFunct != NULL);
 
+  //!
   // TO BE COMPLETED
   // ...
+  //!
 
   return 0;
 }

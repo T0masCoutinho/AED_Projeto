@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
 
   printf("11) Image Rotate 90 degrees\n");
   Image rotated_image = ImageRotate90CW(image_2);
-  ImageSavePPM(rotated_image, "rotated_image.ppm");
+  ImageSavePPM(rotated_image, "rotated_image_90.ppm");
 
   printf("Rotated image 180 degrees:\n");
   Image rotated_image_180 = ImageRotate180CW(image_2);
