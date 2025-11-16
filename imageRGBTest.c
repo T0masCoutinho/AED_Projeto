@@ -72,25 +72,25 @@ int main(int argc, char* argv[]) {
   printf("9) ImageRegionFillingRecursive \n");
 
   // Chamar a função de preenchimento
-  int filled_pixels = ImageRegionFillingRecursive(black_image, 1, 1, 0); //! COMO È QUE AQUI È 0 PASSADO 
+  int filled_pixels = ImageRegionFillingRecursive(image_chess_1, 1, 1, 0); 
 
   printf("Píxeis pintados: %d\n", filled_pixels);
 
   // Guardar o resultado para comparação
-  ImageSavePPM(black_image, "filling_recursive_image.ppm");
+  ImageSavePPM(image_chess_1, "filling_recursive_image.ppm");
 
   //!------------------------------------------------------------------------------
 
-  printf("10) ImageRegionFillingWithSTACK (teste manual)\n");
+  printf("10) ImageRegionFillingWithSTACK \n");
 
   // Chamar a função de preenchimento com stack
-  int filled_pixels_stack = ImageRegionFillingWithSTACK(black_image, 1, 1, 1); //! E COMO AQUI È 1 PASSADO E OS RESULTADOS SAO IGUAIS
+  int filled_pixels_stack = ImageRegionFillingWithSTACK(image_chess_1, 1, 1, 0); 
 
   // Mostrar resultados
   printf("Píxeis pintados (com stack): %d\n", filled_pixels_stack);
 
   // Guardar o resultado para comparação
-  ImageSavePPM(black_image, "filling_stack_image.ppm");
+  ImageSavePPM(image_chess_1, "filling_stack_image.ppm");
 
   //!-----------------------------------------------------------------------------
 
