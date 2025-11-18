@@ -106,6 +106,16 @@ int main(int argc, char* argv[]) {
 
   //!-----------------------------------------------------------------------------
 
+  printf("12) ImageIsEq2ual \n");
+  int image_is_equal = ImageIsEqual(image_chess_2, copy_image);
+  if (image_is_equal) {
+    printf("    As imagens são iguais\n");
+  } else {
+    printf("    As imagens são diferentes\n");
+  }
+  //!-----------------------------------------------------------------------------
+
+
 
   // Libertar memória
 

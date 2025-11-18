@@ -566,19 +566,50 @@ uint16 ImageColors(const Image img) {
 int ImageIsEqual(const Image img1, const Image img2) {
   assert(img1 != NULL);
   assert(img2 != NULL);
+  int found = 0;
 
   //!
-  //* Ver de heigth, width, num_colors sao iguais nas duas imagens
+  //* Ver se heigth, width, num_colors sao iguais nas duas imagens
+  if (img1->width != img2->width)  return 0;
+  if (img1->height != img2->height) return 0;
+  if (img1->num_colors != img2->num_colors) return 0;
 
-  //*Ver as cores e index da LUT de cada imagem (NOTE: The same rgb color may correspond to different LUT labels in different images) 
 
-  //* Ver pixel a pixel se as imagens tem o mesmo index da cor correspondente
+  //*Ver as cores e index da LUT de cada imagem (NOTE: The same rgb color may correspond to different LUT labels in different images)
+  for (uint32 i = 0; i < img1->num_colors; i++) {
+    rgb_t cor_img1 = img1->LUT[i];
+    for (uint32 j = 0; i < img2->num_colors; j++) {
+      rgb_t cor_img2 = img2->LUT[j];
+      if (cor_img1 == cor_img2) {
+        found = 1;
+        break;
+      }
+    }
+    if (!found) {
+      return 0;
+    }
+  }
 
-  
-  //TODO LUTAllocColor
-  //TODO LUTFindColor
+  // Percorre cada pixel
+  for (uint32 v = 0; v < img1->height; v++) {
+      for (uint32 u = 0; u < img1->width; u++) {
 
-  return 0; //TODO se for 0 sao diferentes, se for 1 sao iguais
+          // índices das cores nos pixels
+          uint8 idx1 = img1->image[v][u];
+          uint8 idx2 = img2->image[v][u];
+
+          // obter as cores reais da LUT
+          rgb_t cor1 = img1->LUT[idx1];
+          rgb_t cor2 = img2->LUT[idx2];
+
+          // compara as cores reais
+          if (cor1 != cor2) {
+              return 0;  // pixel diferente → imagens diferentes
+          }
+      }
+  }
+
+  return 1;
   //!
 }
 
