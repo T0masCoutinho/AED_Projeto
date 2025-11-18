@@ -614,7 +614,12 @@ Image ImageRotate90CW(const Image img) {
 
   // copy LUT and number of colors
   out->num_colors = img->num_colors;
-  memcpy(out->LUT, img->LUT, out->num_colors * sizeof(rgb_t));
+  //! memcpy(out->LUT, img->LUT, out->num_colors * sizeof(rgb_t));
+  //! SUBISTITUIR POR CICLOS FOR
+  for (uint32 i = 0; i < out->num_colors; i++) {
+    out->LUT[i] = img->LUT[i];
+  }
+
 
   // allocate rows (out->height rows, each of length out->width)
   for (uint32 i = 0; i < out->height; i++) {
@@ -648,7 +653,11 @@ Image ImageRotate180CW(const Image img) {
 
   // copy LUT and number of colors
   out->num_colors = img->num_colors;
-  memcpy(out->LUT, img->LUT, out->num_colors * sizeof(rgb_t));
+  //! memcpy(out->LUT, img->LUT, out->num_colors * sizeof(rgb_t));
+  //! SUBISTITUIR POR CICLOS FOR
+  for (uint32 i = 0; i < out->num_colors; i++) {
+    out->LUT[i] = img->LUT[i];
+  }
 
   // allocate rows
   for (uint32 i = 0; i < out->height; i++) {
@@ -736,6 +745,7 @@ int ImageRegionFillingWithSTACK(Image img, int u, int v, uint16 label) {
 
   int pixels_painted = 0;
   uint16 background = img->image[v][u];  // cor original do pixel de partida
+  //printf("%d", background);
 
   // Se o pixel já estiver com a cor da região, não faz nada
   if (background == label) {

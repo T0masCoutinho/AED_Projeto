@@ -71,34 +71,36 @@ int main(int argc, char* argv[]) {
   
   printf("9) ImageRegionFillingRecursive \n");
 
+  Image image_chess_recursive = ImageCreateChess(150, 120, 30, 0x000000);  // black
   // Chamar a função de preenchimento
-  int filled_pixels = ImageRegionFillingRecursive(image_chess_1, 1, 1, 0); 
+  int filled_pixels = ImageRegionFillingRecursive(image_chess_recursive, 0, 0, 0); 
 
-  printf("Píxeis pintados: %d\n", filled_pixels);
+  printf("   Píxeis pintados: %d\n", filled_pixels);
 
   // Guardar o resultado para comparação
-  ImageSavePPM(image_chess_1, "filling_recursive_image.ppm");
+  ImageSavePPM(image_chess_recursive, "filling_recursive_image.ppm");
 
   //!------------------------------------------------------------------------------
 
   printf("10) ImageRegionFillingWithSTACK \n");
 
+  Image image_chess_stack = ImageCreateChess(150, 120, 30, 0x000000);  // black
   // Chamar a função de preenchimento com stack
-  int filled_pixels_stack = ImageRegionFillingWithSTACK(image_chess_1, 1, 1, 0); 
+  int filled_pixels_stack = ImageRegionFillingWithSTACK(image_chess_stack, 0, 0, 0);
 
   // Mostrar resultados
-  printf("Píxeis pintados (com stack): %d\n", filled_pixels_stack);
+  printf("    Píxeis pintados: %d\n", filled_pixels_stack);
 
   // Guardar o resultado para comparação
-  ImageSavePPM(image_chess_1, "filling_stack_image.ppm");
+  ImageSavePPM(image_chess_stack, "filling_stack_image.ppm");
 
   //!-----------------------------------------------------------------------------
 
-  printf("11) Image Rotate 90 degrees\n");
+  printf("11) Image Rotate 90 degrees: \n");
   Image rotated_image = ImageRotate90CW(image_2);
   ImageSavePPM(rotated_image, "rotated_image_90.ppm");
 
-  printf("Rotated image 180 degrees:\n");
+  printf("    Rotated image 180 degrees: \n");
   Image rotated_image_180 = ImageRotate180CW(image_2);
   ImageSavePPM(rotated_image_180, "rotated_image_180.ppm");
 
