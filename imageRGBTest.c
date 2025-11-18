@@ -106,15 +106,58 @@ int main(int argc, char* argv[]) {
 
   //!-----------------------------------------------------------------------------
 
-  printf("12) ImageIsEq2ual \n");
+  printf("12) ImageIsEqual \n");
   int image_is_equal = ImageIsEqual(image_chess_2, copy_image);
   if (image_is_equal) {
     printf("    As imagens são iguais\n");
   } else {
     printf("    As imagens são diferentes\n");
   }
+
   //!-----------------------------------------------------------------------------
 
+  printf("13) Testes de complexidade nativa da função ImageIsEqual()\n");
+
+  // Definir nomes dos contadores
+  InstrName[0] = "comparisons";
+  InstrCalibrate();   // calibrar unidade de tempo
+
+  int sizes[] = {50, 100, 200, 400, 800};
+  int nsizes = sizeof(sizes) / sizeof(sizes[0]);
+
+  printf("    Pixels\tTime(s)\tCaltime\tComparisons\n");
+
+  for (int i = 0; i < nsizes; i++) {
+
+      int w = sizes[i], h = sizes[i];
+
+      // Criar duas imagens iguais
+      Image img1 = ImageCreate(w, h);
+      Image img2 = ImageCopy(img1);
+
+      // Reset aos contadores e ao tempo
+      InstrReset();
+
+      // Chamar a função que estamos a medir
+      ImageIsEqual(img1, img2);
+
+      // Medir tempo decorrido
+      double elapsed_time = cpu_time() - InstrTime;
+
+      // Imprimir linha da tabela
+      printf("    %d\t%f\t%f\t%lu\n",
+            w * h,
+            elapsed_time,
+            elapsed_time / InstrCTU,
+            InstrCount[0]);
+
+      // Libertar imagens
+      ImageDestroy(&img1);
+      ImageDestroy(&img2);
+  }
+
+
+   //!-----------------------------------------------------------------------------
 
 
   // Libertar memória

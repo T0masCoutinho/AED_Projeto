@@ -563,6 +563,8 @@ uint16 ImageColors(const Image img) {
 /// Check if img1 and img2 represent equal images.
 /// //! NOTE: The same rgb color may correspond to different LUT labels in
 /// //! different images!
+
+
 int ImageIsEqual(const Image img1, const Image img2) {
   assert(img1 != NULL);
   assert(img2 != NULL);
@@ -589,10 +591,16 @@ int ImageIsEqual(const Image img1, const Image img2) {
       return 0;
     }
   }
+  /* Deve analisar a complexidade computacional da função ImageIsEqual(img1, img2)
+  em função do número de comparações efetuadas envolvendo os pixels das imagens.
+  Identifique as situações correspondentes ao melhor caso e ao pior caso, e indique o
+  número de comparações efetuadas. Execute testes computacionais para imagens com
+  diferentes tamanhos e conteúdos, registe e analise o número de comparações efetuadas. */
 
   // Percorre cada pixel
   for (uint32 v = 0; v < img1->height; v++) {
       for (uint32 u = 0; u < img1->width; u++) {
+          InstrCount[0]++;  // conta uma comparação de pixel //!---------------------------------------
 
           // índices das cores nos pixels
           uint8 idx1 = img1->image[v][u];
@@ -609,7 +617,7 @@ int ImageIsEqual(const Image img1, const Image img2) {
       }
   }
 
-  return 1;
+  return 1; //! VER NUMEROS DE COMPARACOES DEPOIS
   //!
 }
 
