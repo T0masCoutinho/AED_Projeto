@@ -591,16 +591,17 @@ int ImageIsEqual(const Image img1, const Image img2) {
       return 0;
     }
   }
-  /* Deve analisar a complexidade computacional da função ImageIsEqual(img1, img2)
-  em função do número de comparações efetuadas envolvendo os pixels das imagens.
-  Identifique as situações correspondentes ao melhor caso e ao pior caso, e indique o
-  número de comparações efetuadas. Execute testes computacionais para imagens com
-  diferentes tamanhos e conteúdos, registe e analise o número de comparações efetuadas. */
 
+  /* 1. Realize testes computacionais com imagens de diferentes tamanhos e conteúdos.
+  Registe e analise o número de operações efectuadas envolvendo os valores dos pixels
+  das imagens.
+  2. Efetue uma análise formal da complexidade do algoritmo.
+  3. Compare os resultados obtidos nas duas tarefas anteriores. */
+    
   // Percorre cada pixel
   for (uint32 v = 0; v < img1->height; v++) {
       for (uint32 u = 0; u < img1->width; u++) {
-          InstrCount[0]++;  // conta uma comparação de pixel //!---------------------------------------
+          InstrCount[0]++;  // conta as comparações de pixels
 
           // índices das cores nos pixels
           uint8 idx1 = img1->image[v][u];
@@ -617,7 +618,7 @@ int ImageIsEqual(const Image img1, const Image img2) {
       }
   }
 
-  return 1; //! VER NUMEROS DE COMPARACOES DEPOIS
+  return 1;
   //!
 }
 
@@ -653,8 +654,6 @@ Image ImageRotate90CW(const Image img) {
 
   // copy LUT and number of colors
   out->num_colors = img->num_colors;
-  //! memcpy(out->LUT, img->LUT, out->num_colors * sizeof(rgb_t));
-  //! SUBISTITUIR POR CICLOS FOR
   for (uint32 i = 0; i < out->num_colors; i++) {
     out->LUT[i] = img->LUT[i];
   }
@@ -681,7 +680,7 @@ Image ImageRotate90CW(const Image img) {
 ///
 /// On success, a new image is returned.
 /// (The caller is responsible for destroying the returned image!)
-Image ImageRotate180CW(const Image img) {
+Image ImageRotate180CW(const Image img) { //! FAZER DUAS VEZES A FUNCAO DE 90CW?
   assert(img != NULL);
 
   uint32 oldW = img->width;
@@ -692,8 +691,6 @@ Image ImageRotate180CW(const Image img) {
 
   // copy LUT and number of colors
   out->num_colors = img->num_colors;
-  //! memcpy(out->LUT, img->LUT, out->num_colors * sizeof(rgb_t));
-  //! SUBISTITUIR POR CICLOS FOR
   for (uint32 i = 0; i < out->num_colors; i++) {
     out->LUT[i] = img->LUT[i];
   }
@@ -778,7 +775,7 @@ int ImageRegionFillingWithSTACK(Image img, int u, int v, uint16 label) {
   assert(label < FIXED_LUT_SIZE);
 
   //!
-  Stack* stack = StackCreate(10000); //! SIZE??????????
+  Stack* stack = StackCreate(10000);
   PixelCoords p = PixelCoordsCreate(u,v); //? create an object to create pixels 
   StackPush(stack, p);
 

@@ -116,46 +116,73 @@ int main(int argc, char* argv[]) {
 
   //!-----------------------------------------------------------------------------
 
-  printf("13) Testes de complexidade nativa da função ImageIsEqual()\n");
+  printf("\n=======================================\n");
+  printf(" TESTES DE COMPLEXIDADE: ImageIsEqual    (demora um bocado)\n");
+  printf("=======================================\n");
 
-  // Definir nomes dos contadores
-  InstrName[0] = "comparisons";
-  InstrCalibrate();   // calibrar unidade de tempo
+  InstrName[0] = "comparisons";  
+  InstrCalibrate();
 
-  int sizes[] = {50, 100, 200, 400, 800};
-  int nsizes = sizeof(sizes) / sizeof(sizes[0]);
+  printf("\n%20s %12s %12s %12s\n",
+        "NºTeste", "Time(s)", "Caltime", "Comparisons");
 
-  printf("    Pixels\tTime(s)\tCaltime\tComparisons\n");
+  // Dimensão padrão das imagens do teste
+  int W = 512, H = 512;
 
-  for (int i = 0; i < nsizes; i++) {
+  // ------------------------------------------------------
+  // T1 – IMAGENS IGUAIS  (Worst-case linear)
+  // ------------------------------------------------------
+  {
+      Image A = ImageCreate(W, H);
+      Image B = ImageCopy(A);
 
-      int w = sizes[i], h = sizes[i];
+      ImageSavePBM(A, "Test/Test1/T1_img1.pbm");
+      ImageSavePBM(B, "Test/Test1/T1_img2.pbm");
 
-      // Criar duas imagens iguais
-      Image img1 = ImageCreate(w, h);
-      Image img2 = ImageCopy(img1);
-
-      // Reset aos contadores e ao tempo
       InstrReset();
+      ImageIsEqual(A, B);
+      double elapsed = cpu_time() - InstrTime;
 
-      // Chamar a função que estamos a medir
-      ImageIsEqual(img1, img2);
+      printf("%19s %12.6f %12.6f %12lu\n",
+            "Test1", elapsed, elapsed / InstrCTU, InstrCount[0]);
 
-      // Medir tempo decorrido
-      double elapsed_time = cpu_time() - InstrTime;
-
-      // Imprimir linha da tabela
-      printf("    %d\t%f\t%f\t%lu\n",
-            w * h,
-            elapsed_time,
-            elapsed_time / InstrCTU,
-            InstrCount[0]);
-
-      // Libertar imagens
-      ImageDestroy(&img1);
-      ImageDestroy(&img2);
+      ImageDestroy(&A);
+      ImageDestroy(&B);
   }
 
+  // ------------------------------------------------------
+  // T2 – DIFERENTES NO PRIMEIRO PIXEL  (Best-case)
+  // ------------------------------------------------------
+  {
+      Image A = ImageCreateChess(W, H, 30, 0x000000);  // imagem de xadrez
+      Image B = ImageRegionFillingRecursive()
+      //! ALTERAR UM PIXEL COM ALGUMA FUNÇÃO
+
+      ImageSavePBM(A, "Test/Test2/T2_img1.pbm");
+      ImageSavePBM(B, "Test/Test2/T2_img2.pbm");
+
+      InstrReset();
+      ImageIsEqual(A, B);
+      double elapsed = cpu_time() - InstrTime;
+
+      printf("%19s %12.6f %12.6f %12lu\n",
+            "Test2", elapsed, elapsed / InstrCTU, InstrCount[0]);
+
+      ImageDestroy(&A);
+      ImageDestroy(&B);
+  }
+
+
+    /*
+    Tipos de comparação importantes:
+    Nome do Teste	Caso	O que mede
+    T1 — Iguais (Worst-Case Linear)	pior caso	percorre todos os pixels → O(n)
+    T2 — Diferentes no primeiro pixel	melhor caso	O(1)
+    T3 — Diferentes no último pixel	pior caso	O(n)
+    T4 — Diferentes num pixel aleatório	intermédio	O(n)
+    T5 — Imagens totalmente aleatórias	realista	distribuição uniforme
+    T6 — Imagens enormes (até limite da RAM)	stress test	estabilidade / performance
+    */
 
    //!-----------------------------------------------------------------------------
 
