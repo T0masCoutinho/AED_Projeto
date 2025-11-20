@@ -155,7 +155,8 @@ int main(int argc, char* argv[]) {
   // ------------------------------------------------------
   {
       Image A = ImageCreateChess(W, H, 30, 0x000000);  // imagem de xadrez
-      Image B = ImageRegionFillingRecursive()
+      Image B = ImageCreateChess(W, H, 30, 0x000000);  // imagem de xadrez
+      ImageRegionFillingRecursive(B, 0, 0, 0); // mudar primeiro quadrado xadrez na imagem B
       //! ALTERAR UM PIXEL COM ALGUMA FUNÇÃO
 
       ImageSavePBM(A, "Test/Test2/T2_img1.pbm");
