@@ -161,26 +161,40 @@ int main(int argc, char* argv[]) {
     ImageDestroy(&A);
     ImageDestroy(&B);
   }
+  printf("     ------------------------------------------------------------------\n");
   // ------------------------------------------------------
   // T2 – DIFERENTES NO PRIMEIRO PIXEL  (Best-case)
   // ------------------------------------------------------
   
-     /*Image A = ImageCreateChess(w, h, 30, 0x000000);  // imagem de xadrez
-      Image B = ImageCreateChess(W, H, 30, 0x000000);  // imagem de xadrez
-      ImageRegionFillingRecursive(B, 0, 0, 0); // mudar primeiro quadrado xadrez na imagem B
+  Image C = ImageCreateChess(sizes[0], sizes[0], 30, 0x000000);  // imagem de xadrez
+  Image D = ImageCreateChess(sizes[0], sizes[0], 30, 0x000000);  // imagem de xadrez
+  ImageRegionFillingRecursive(D, 0, 0, 0); // mudar primeiro quadrado xadrez na imagem D
 
-      ImageSavePBM(A, "Test/Test2/T2_img1.pbm");
-      ImageSavePBM(B, "Test/Test2/T2_img2.pbm");
+  ImageSavePBM(C, "Test/Test2/T2_img1.pbm");
+  ImageSavePBM(D, "Test/Test2/T2_img2.pbm");
 
-      InstrReset();
-      ImageIsEqual(A, B);
-      double elapsed = cpu_time() - InstrTime;
+  ImageIsEqual(C, D);
+  //! EXEMPLO DE PADRAO QUE VAMOS USAR
 
-      printf("%19s %12.6f %12.6f %12lu\n",
-            "Test2", elapsed, elapsed / InstrCTU, InstrCount[0]);
+  for (int i = 0; i < nsizes; i++) {
+    int w = sizes[i], h = sizes[i];
 
-      ImageDestroy(&A);
-      ImageDestroy(&B); */ 
+      // Criar duas imagens iguais
+    Image C = ImageCreateChess(w, h, 30, 0x000000);  // imagem de xadrez
+    Image D = ImageCreateChess(w, h, 30, 0x000000);  // imagem de xadrez
+    ImageRegionFillingRecursive(D, 0, 0, 0); // mudar primeiro quadrado xadrez na imagem D
+
+
+    InstrReset();
+    ImageIsEqual(C, D);
+    double elapsed = cpu_time() - InstrTime;
+
+    printf("%10s %18d %12.6f %12.6f %15lu\n",
+            "Test2", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
+
+    ImageDestroy(&C);
+    ImageDestroy(&D);
+  } 
   
 
 
