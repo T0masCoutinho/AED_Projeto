@@ -123,41 +123,51 @@ int main(int argc, char* argv[]) {
   InstrName[0] = "comparisons";  
   InstrCalibrate();
 
-  printf("\n%20s %12s %12s %12s\n",
-        "NºTeste", "Time(s)", "Caltime", "Comparisons");
+  int sizes[] = {100, 200, 400, 800, 1600, 3200, 6400};
+  int nsizes = sizeof(sizes) / sizeof(sizes[0]);
+
+  printf("\n%10s %18s %12s %12s %15s\n",
+        "NºTeste", "Dimensions(w*h)", "Time(s)", "Caltime", "Comparisons");
 
   // Dimensão padrão das imagens do teste
-  int W = 512, H = 512;
+  //int W = 512, H = 512;
 
   // ------------------------------------------------------
   // T1 – IMAGENS IGUAIS  (Worst-case linear)
   // ------------------------------------------------------
-  {
-      Image A = ImageCreate(W, H);
-      Image B = ImageCopy(A);
+  Image A = ImageCreate(sizes[0], sizes[0]);
+  Image B = ImageCopy(A);
 
-      ImageSavePBM(A, "Test/Test1/T1_img1.pbm");
-      ImageSavePBM(B, "Test/Test1/T1_img2.pbm");
+  ImageSavePBM(A, "Test/Test1/T1_img1.pbm");
+  ImageSavePBM(B, "Test/Test1/T1_img2.pbm");
 
-      InstrReset();
-      ImageIsEqual(A, B);
-      double elapsed = cpu_time() - InstrTime;
+  ImageIsEqual(A, B);
+  //! EXEMPLO DE PADRAO QUE VAMOS USAR
 
-      printf("%19s %12.6f %12.6f %12lu\n",
-            "Test1", elapsed, elapsed / InstrCTU, InstrCount[0]);
+  for (int i = 0; i < nsizes; i++) {
+    int w = sizes[i], h = sizes[i];
 
-      ImageDestroy(&A);
-      ImageDestroy(&B);
+      // Criar duas imagens iguais
+    Image A = ImageCreate(w, h);
+    Image B = ImageCopy(A);
+
+    InstrReset();
+    ImageIsEqual(A, B);
+    double elapsed = cpu_time() - InstrTime;
+
+    printf("%10s %18d %12.6f %12.6f %15lu\n",
+            "Test1", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
+
+    ImageDestroy(&A);
+    ImageDestroy(&B);
   }
-
   // ------------------------------------------------------
   // T2 – DIFERENTES NO PRIMEIRO PIXEL  (Best-case)
   // ------------------------------------------------------
-  {
-      Image A = ImageCreateChess(W, H, 30, 0x000000);  // imagem de xadrez
+  
+     /*Image A = ImageCreateChess(w, h, 30, 0x000000);  // imagem de xadrez
       Image B = ImageCreateChess(W, H, 30, 0x000000);  // imagem de xadrez
       ImageRegionFillingRecursive(B, 0, 0, 0); // mudar primeiro quadrado xadrez na imagem B
-      //! ALTERAR UM PIXEL COM ALGUMA FUNÇÃO
 
       ImageSavePBM(A, "Test/Test2/T2_img1.pbm");
       ImageSavePBM(B, "Test/Test2/T2_img2.pbm");
@@ -170,8 +180,8 @@ int main(int argc, char* argv[]) {
             "Test2", elapsed, elapsed / InstrCTU, InstrCount[0]);
 
       ImageDestroy(&A);
-      ImageDestroy(&B);
-  }
+      ImageDestroy(&B); */ 
+  
 
 
     /*
