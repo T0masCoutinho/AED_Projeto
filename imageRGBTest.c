@@ -96,6 +96,17 @@ int main(int argc, char* argv[]) {
 
   //!-----------------------------------------------------------------------------
 
+  printf("12) ImageRegionFillingWithQUEUE \n");
+  Image image_chess_queue = ImageCreateChess(150, 120, 30, 0x000000);  // black
+  // Chamar a função de preenchimento com queue
+  int filled_pixels_queue = ImageRegionFillingWithQUEUE(image_chess_queue, 0, 0, 0);
+  // Mostrar resultados
+  printf("    Píxeis pintados: %d\n", filled_pixels_queue);
+  // Guardar o resultado para comparação
+  ImageSavePPM(image_chess_queue, "filling_queue_image.ppm");
+
+  //!-----------------------------------------------------------------------------
+
   printf("11) Image Rotate 90 degrees: \n");
   Image rotated_image = ImageRotate90CW(image_2);
   ImageSavePPM(rotated_image, "rotated_image_90.ppm");
@@ -116,26 +127,40 @@ int main(int argc, char* argv[]) {
 
   //!-----------------------------------------------------------------------------
 
-  printf("12) ImageRegionFillingWithQUEUE \n");
-  Image image_chess_queue = ImageCreateChess(150, 120, 30, 0x000000);  // black
-  // Chamar a função de preenchimento com queue
-  int filled_pixels_queue = ImageRegionFillingWithQUEUE(image_chess_queue, 0, 0, 0);
-  // Mostrar resultados
-  printf("    Píxeis pintados: %d\n", filled_pixels_queue);
-  // Guardar o resultado para comparação
-  ImageSavePPM(image_chess_queue, "filling_queue_image.ppm");
-
-  //!-----------------------------------------------------------------------------
-
   printf("13) ImageSegmentation\n");
-  Image segmented_image_recursive = ImageSegmentation(image_1, ImageRegionFillingRecursive);
-  ImageSavePPM(segmented_image_recursive, "segmented_image_recursive.ppm");
 
-  Image segmented_image_stack = ImageSegmentation(image_1, ImageRegionFillingWithSTACK);
-  ImageSavePPM(segmented_image_stack, "segmented_image_stack.ppm");
+  // 1. Criar a imagem original "limpa"
+  Image image_original = ImageCreateChess(150, 120, 30, 0x000000); 
 
-  Image segmented_image_queue = ImageSegmentation(image_1, ImageRegionFillingWithQUEUE);
-  ImageSavePPM(segmented_image_queue, "segmented_image_queue.ppm");
+  // --- TESTE 1: RECURSIVE ---
+  printf("    Testing Recursive...\n");
+  Image img_rec = ImageCopy(image_original); // Fazemos uma cópia para não estragar a original
+  int num_regions_rec = ImageSegmentation(img_rec, ImageRegionFillingRecursive);
+  printf("    Regions found: %d\n", num_regions_rec);
+  ImageSavePPM(img_rec, "segmented_image_recursive.ppm"); // Gravamos a imagem alterada, não o inteiro
+  ImageDestroy(&img_rec); // Limpamos a memória da cópia
+
+
+  // --- TESTE 2: STACK ---
+  printf("    Testing Stack...\n");
+  Image img_stack = ImageCopy(image_original); // Nova cópia limpa da original
+  int num_regions_stack = ImageSegmentation(img_stack, ImageRegionFillingWithSTACK);
+  printf("    Regions found: %d\n", num_regions_stack);
+  ImageSavePPM(img_stack, "segmented_image_stack.ppm"); // Gravamos a imagem correta
+  ImageDestroy(&img_stack);
+
+
+  // --- TESTE 3: QUEUE ---
+  printf("    Testing Queue...\n");
+  Image img_queue = ImageCopy(image_original); // Nova cópia limpa da original
+  int num_regions_queue = ImageSegmentation(img_queue, ImageRegionFillingWithQUEUE);
+  printf("    Regions found: %d\n", num_regions_queue);
+  ImageSavePPM(img_queue, "segmented_image_queue.ppm"); // Gravamos a imagem correta
+  ImageDestroy(&img_queue);
+
+
+  // Limpar a original no fim
+  ImageDestroy(&image_original);
   
   //!-----------------------------------------------------------------------------
 
