@@ -684,27 +684,11 @@ Image ImageRotate180CW(const Image img) { //! FAZER DUAS VEZES A FUNCAO DE 90CW?
   uint32 oldW = img->width;
   uint32 oldH = img->height;
 
-  // new image has same dimensions
-  Image out = AllocateImageHeader(oldW, oldH);
-
-  // copy LUT and number of colors
-  out->num_colors = img->num_colors;
-  for (uint32 i = 0; i < out->num_colors; i++) {
-    out->LUT[i] = img->LUT[i];
-  }
-
-  // allocate rows
-  for (uint32 i = 0; i < out->height; i++) {
-    out->image[i] = AllocateRowArray(out->width);
-  }
-
-  // src (u,v) -> dst (u' = oldW-1-u, v' = oldH-1-v)
-  for (uint32 v = 0; v < oldH; v++) {
-    for (uint32 u = 0; u < oldW; u++) {
-      out->image[oldH - 1 - v][oldW - 1 - u] = img->image[v][u];
-    }
-  }
-
+  //Rotate 90° CW twice. Free the intermediate image.
+  Image tmp = ImageRotate90CW(img);
+  if (tmp == NULL) return NULL;
+  Image out = ImageRotate90CW(tmp);
+  ImageDestroy(&tmp);
   return out;
 }
 
@@ -740,6 +724,7 @@ int ImageRegionFillingRecursive(Image img, int u, int v, uint16 color) {
     assert(color < FIXED_LUT_SIZE);
 
     //!
+
     uint16 background = img->image[v][u];  // cor original do pixel de partida
 
     // Se o pixel já estiver com a cor da região, não faz nada
@@ -748,6 +733,7 @@ int ImageRegionFillingRecursive(Image img, int u, int v, uint16 color) {
     // Pinta o pixel atual com a nova cor
     img->image[v][u] = color;
     int number_labeled_pixels = 1;  // conta este pixel
+
 
     //TODO VER SE DÁ PARA FAZER DA MANEIRA DO GUIAO SEM DAR ERRO NO ASSERT
     // Explorar vizinhos (4-direções) só se forem válidos e tiverem a cor de background
@@ -761,6 +747,7 @@ int ImageRegionFillingRecursive(Image img, int u, int v, uint16 color) {
        number_labeled_pixels += ImageRegionFillingRecursive(img, u, v-1, color);
 
     return number_labeled_pixels;  // número total de pixels pintados
+
     //!
 }
 
@@ -812,17 +799,44 @@ int ImageRegionFillingWithSTACK(Image img, int u, int v, uint16 label) {
 
 /// Region growing using a QUEUE of pixel coordinates to
 /// implement the flood-filling algorithm.
+
 int ImageRegionFillingWithQUEUE(Image img, int u, int v, uint16 label) {
   assert(img != NULL);
   assert(ImageIsValidPixel(img, u, v));
   assert(label < FIXED_LUT_SIZE);
 
   //!
-  // TO BE COMPLETED
-  // ...
-  //!
+  Queue* queue = QueueCreate(10000);
+  PixelCoords start = PixelCoordsCreate(u, v);
+  QueueEnqueue(queue, start);
 
-  return 0;
+  int pixels_painted = 0;
+  uint16 background = img->image[v][u];
+
+  if (background == label) {
+    QueueDestroy(&queue);
+    return 0;
+  }
+
+  while (!QueueIsEmpty(queue)) {
+    PixelCoords p = QueueDequeue(queue);
+    int x = PixelCoordsGetU(p);
+    int y = PixelCoordsGetV(p);
+
+    if (ImageIsValidPixel(img, x, y) && img->image[y][x] == background) {
+      img->image[y][x] = label;
+      pixels_painted++;
+
+      QueueEnqueue(queue, PixelCoordsCreate(x + 1, y));
+      QueueEnqueue(queue, PixelCoordsCreate(x - 1, y));
+      QueueEnqueue(queue, PixelCoordsCreate(x, y + 1));
+      QueueEnqueue(queue, PixelCoordsCreate(x, y - 1));
+    }
+  }
+
+  QueueDestroy(&queue);
+  return pixels_painted;
+  //!
 }
 
 /// Image Segmentation
@@ -839,10 +853,25 @@ int ImageSegmentation(Image img, FillingFunction fillFunct) {
   assert(img != NULL);
   assert(fillFunct != NULL);
 
-  //!
-  // TO BE COMPLETED
-  // ...
-  //!
+  int num_regions = 0;
+  rgb_t current_color = 0x000000;  // Start with black (not white which is background)
 
-  return 0;
+  // Sequential scan from top-left (0,0) to bottom-right
+  for (uint32 v = 0; v < img->height; v++) {
+    for (uint32 u = 0; u < img->width; u++) {
+      // If pixel is still background (white, label 0), it's an unfilled region
+      if (img->image[v][u] == 0) {
+        // Generate next color for this region
+        current_color = GenerateNextColor(current_color);
+        uint16 new_label = LUTAllocColor(img, current_color);
+
+        // Fill the region using the provided filling function
+        fillFunct(img, u, v, new_label);
+
+        num_regions++;
+      }
+    }
+  }
+
+  return num_regions;
 }
