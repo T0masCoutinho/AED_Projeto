@@ -19,6 +19,18 @@
 #include "imageRGB.h"
 #include "instrumentation.h"
 
+
+
+// copiamos a estrutura para podermos manipular 
+// os pixels para os testes.
+struct image {
+  uint32 width;
+  uint32 height;
+  uint16** image;     // pointer to an array of pointers referencing the image rows
+  uint16 num_colors;  // the number of colors (i.e., pixel labels) used
+  rgb_t* LUT;         // table storing (R,G,B) triplets
+};
+
 int main(int argc, char* argv[]) {
   program_name = argv[0];
   if (argc != 1) {
@@ -247,38 +259,139 @@ int main(int argc, char* argv[]) {
 
   printf("     ------------------------------------------------------------------\n");
   // ------------------------------------------------------
-  // T3 — Diferentes no último pixel	pior caso	O(n)
+  // T3 — Diferentes no último pixel (Pior caso: O(N))
   // ------------------------------------------------------
   
-
-
-  printf("     ------------------------------------------------------------------\n");
-  // ------------------------------------------------------
-  // T4 — Diferentes num pixel aleatório	intermédio	O(n)
-  // ------------------------------------------------------
-
-
-
-  printf("     ------------------------------------------------------------------\n");
-  // ------------------------------------------------------
-  // T5 — Imagens totalmente aleatórias	realista	distribuição uniforme
-  // ------------------------------------------------------
-
-
-  printf("     ------------------------------------------------------------------\n");
+  // 1. Preparação do Exemplo Ilustrativo (sizes[0])
+  Image E_demo = ImageCreate(sizes[0], sizes[0]); // Cria toda branca
+  Image F_demo = ImageCopy(E_demo);
   
-    /*
-    Tipos de comparação importantes:
-    Nome do Teste	Caso	O que mede
-    T1 — Iguais (Worst-Case Linear)	pior caso	percorre todos os pixels → O(n)
-    T2 — Diferentes no primeiro pixel	melhor caso	O(1)
-    T3 — Diferentes no último pixel	pior caso	O(n)
-    T4 — Diferentes num pixel aleatório	intermédio	O(n)
-    T5 — Imagens totalmente aleatórias	realista	distribuição uniforme
-    */
+  // Modificar APENAS o último pixel (canto inferior direito) para Preto (índice 1)
+  F_demo->image[sizes[0]-1][sizes[0]-1] = 1; 
 
-   //!-----------------------------------------------------------------------------
+  // Guardar exemplo
+  ImageSavePBM(E_demo, "Test/Test3/T3_img1.pbm");
+  ImageSavePBM(F_demo, "Test/Test3/T3_img2.pbm");
+  
+  // Limpar memória do exemplo
+  ImageDestroy(&E_demo);
+  ImageDestroy(&F_demo);
 
+  // 2. Loop de Complexidade
+  for (int i = 0; i < nsizes; i++) {
+    int w = sizes[i], h = sizes[i];
+
+    Image E = ImageCreate(w, h);
+    Image F = ImageCopy(E);
+
+    // Mudar o último pixel
+    F->image[h-1][w-1] = 1; 
+
+    InstrReset();
+    ImageIsEqual(E, F);
+    double elapsed = cpu_time() - InstrTime;
+
+    printf("%10s %18d %12.6f %12.6f %15lu\n",
+            "Test3", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
+
+    ImageDestroy(&E);
+    ImageDestroy(&F);
+  }
+
+  printf("     ------------------------------------------------------------------\n");
+  // ------------------------------------------------------
+  // T4 — Diferentes num pixel aleatório intermédio (Caso Médio: ~O(N/2))
+  // ------------------------------------------------------
+
+  // 1. Preparação do Exemplo Ilustrativo
+  Image G_demo = ImageCreate(sizes[0], sizes[0]);
+  Image H_demo = ImageCopy(G_demo);
+
+  // Mudar um pixel no meio (evitando o primeiro e o último)
+  int r_w_demo = sizes[0] / 2; 
+  int r_h_demo = sizes[0] / 2;
+  H_demo->image[r_h_demo][r_w_demo] = 1; 
+
+  ImageSavePBM(G_demo, "Test/Test4/T4_img1.pbm");
+  ImageSavePBM(H_demo, "Test/Test4/T4_img2.pbm");
+
+  ImageDestroy(&G_demo);
+  ImageDestroy(&H_demo);
+
+  // 2. Loop de Complexidade
+  for (int i = 0; i < nsizes; i++) {
+    int w = sizes[i], h = sizes[i];
+
+    Image G = ImageCreate(w, h);
+    Image H = ImageCopy(G);
+
+    // Mudar pixel aleatório (evita (0,0) e (max,max))
+    int random_w = (rand() % (w - 2)) + 1;
+    int random_h = (rand() % (h - 2)) + 1;
+    H->image[random_h][random_w] = 1; 
+
+    InstrReset();
+    ImageIsEqual(G, H);
+    double elapsed = cpu_time() - InstrTime;
+
+    printf("%10s %18d %12.6f %12.6f %15lu\n",
+            "Test4", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
+
+    ImageDestroy(&G);
+    ImageDestroy(&H);
+  }
+
+  printf("     ------------------------------------------------------------------\n");
+  // ------------------------------------------------------
+  // T5 — Imagens totalmente aleatórias (Melhor Caso: O(1))
+  // ------------------------------------------------------
+
+  // 1. Preparação do Exemplo Ilustrativo
+  // Criar duas imagens de ruído aleatório
+  Image I_demo = ImageCreate(sizes[0], sizes[0]);
+  Image J_demo = ImageCreate(sizes[0], sizes[0]);
+
+  // Preencher com ruído (0 ou 1)
+  for(uint32 y=0; y < I_demo->height; y++) {
+      for(uint32 x=0; x < I_demo->width; x++) {
+          I_demo->image[y][x] = rand() % 2;
+          J_demo->image[y][x] = rand() % 2;
+      }
+  }
+  // Garantir que o primeiro pixel é diferente para ser O(1)
+  I_demo->image[0][0] = 0;
+  J_demo->image[0][0] = 1;
+
+  ImageSavePBM(I_demo, "Test/Test5/T5_img1.pbm");
+  ImageSavePBM(J_demo, "Test/Test5/T5_img2.pbm");
+
+  ImageDestroy(&I_demo);
+  ImageDestroy(&J_demo);
+
+  // 2. Loop de Complexidade
+  for (int i = 0; i < nsizes; i++) {
+    int w = sizes[i], h = sizes[i];
+
+    Image I = ImageCreate(w, h);
+    Image J = ImageCreate(w, h);
+
+    // Vamos apenas garantir que o primeiro pixel é diferente.
+    // Não precisamos de preencher a imagem toda com ruído para o teste de complexidade,
+    // pois a função ImageIsEqual vai parar logo no primeiro pixel (0,0).
+    // Isto poupa tempo na execução dos testes grandes.
+    I->image[0][0] = 0;
+    J->image[0][0] = 1;
+
+    InstrReset();
+    ImageIsEqual(I, J);
+    double elapsed = cpu_time() - InstrTime;
+
+    printf("%10s %18d %12.6f %12.6f %15lu\n",
+            "Test5", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
+
+    ImageDestroy(&I);
+    ImageDestroy(&J);
+  }
 
   // Libertar memória
 
