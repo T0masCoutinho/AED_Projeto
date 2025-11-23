@@ -13,8 +13,8 @@
 // Student authors (fill in below):
 // NMec: 118799
 // Name: Daniel Zamurca
-// NMec: //!
-// Name: Tómas //!
+// NMec: 119501
+// Name: Tómas Coutinho
 //
 // Date: 07/11/2025
 //
@@ -297,8 +297,6 @@ Image ImageCopy(const Image img) {
     }
   }
   return img_copy;
-  //! A FUNCIONAR
-
 }
 
 /// Printing on the console
@@ -604,12 +602,12 @@ int ImageIsEqual(const Image img1, const Image img2) {
           InstrCount[0]++;  // conta as comparações de pixels
 
           // índices das cores nos pixels
-          uint8 idx1 = img1->image[v][u];
-          uint8 idx2 = img2->image[v][u];
+          uint8 index_LUT_img1 = img1->image[v][u];
+          uint8 index_LUT_img2 = img2->image[v][u];
 
           // obter as cores reais da LUT
-          rgb_t cor1 = img1->LUT[idx1];
-          rgb_t cor2 = img2->LUT[idx2];
+          rgb_t cor1 = img1->LUT[index_LUT_img1];
+          rgb_t cor2 = img2->LUT[index_LUT_img2];
 
           // compara as cores reais
           if (cor1 != cor2) {

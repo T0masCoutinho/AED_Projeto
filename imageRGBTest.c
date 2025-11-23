@@ -163,7 +163,7 @@ int main(int argc, char* argv[]) {
   }
   printf("     ------------------------------------------------------------------\n");
   // ------------------------------------------------------
-  // T2 – DIFERENTES NO PRIMEIRO PIXEL  (Best-case)
+  // T2 – DIFERENTES NO PRIMEIRO PIXEL  (Best-case em pixels)
   // ------------------------------------------------------
   
   Image C = ImageCreateChess(sizes[0], sizes[0], 30, 0x000000);  // imagem de xadrez
@@ -195,9 +195,29 @@ int main(int argc, char* argv[]) {
     ImageDestroy(&C);
     ImageDestroy(&D);
   } 
+
+  printf("     ------------------------------------------------------------------\n");
+  // ------------------------------------------------------
+  // T3 — Diferentes no último pixel	pior caso	O(n)
+  // ------------------------------------------------------
   
 
 
+  printf("     ------------------------------------------------------------------\n");
+  // ------------------------------------------------------
+  // T4 — Diferentes num pixel aleatório	intermédio	O(n)
+  // ------------------------------------------------------
+
+
+
+  printf("     ------------------------------------------------------------------\n");
+  // ------------------------------------------------------
+  // T5 — Imagens totalmente aleatórias	realista	distribuição uniforme
+  // ------------------------------------------------------
+
+
+  printf("     ------------------------------------------------------------------\n");
+  
     /*
     Tipos de comparação importantes:
     Nome do Teste	Caso	O que mede
@@ -206,7 +226,6 @@ int main(int argc, char* argv[]) {
     T3 — Diferentes no último pixel	pior caso	O(n)
     T4 — Diferentes num pixel aleatório	intermédio	O(n)
     T5 — Imagens totalmente aleatórias	realista	distribuição uniforme
-    T6 — Imagens enormes (até limite da RAM)	stress test	estabilidade / performance
     */
 
    //!-----------------------------------------------------------------------------
