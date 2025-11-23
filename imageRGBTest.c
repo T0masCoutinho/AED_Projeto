@@ -295,6 +295,104 @@ void Test6_ComplexityAnalysis() {
   printf("   [OK] T5 (Total Dif) gerado em Test/Test5/\n");
 }
 
+// Cria uma Espiral: Paredes(1), Caminho(0)
+Image ImageCreateSpiral(int width, int height) {
+  Image img = ImageCreate(width, height);
+  
+  // 1. Pintar tudo de BRANCO (Paredes = 1)
+  for (uint32 y = 0; y < img->height; y++) {
+    for (uint32 x = 0; x < img->width; x++) {
+      img->image[y][x] = 1; 
+    }
+  }
+
+  // 2. Escavar caminho a PRETO (0)
+  int x = 0, y = 0;
+  int dx = 1, dy = 0; 
+  int max_steps = width * height; 
+
+  for (int i = 0; i < max_steps; i++) {
+      img->image[y][x] = 0; 
+
+      int next_x = x + dx;
+      int next_y = y + dy;
+      int nnx = x + 2*dx;
+      int nny = y + 2*dy;
+
+      int turn = 0;
+      if (next_x < 0 || next_x >= (int)img->width || next_y < 0 || next_y >= (int)img->height) {
+          turn = 1;
+      } 
+      else if (nnx >= 0 && nnx < (int)img->width && nny >= 0 && nny < (int)img->height && img->image[nny][nnx] == 0) {
+          turn = 1;
+      }
+
+      if (turn) {
+          int temp = dx;
+          dx = -dy;
+          dy = temp;
+          next_x = x + dx;
+          next_y = y + dy;
+          if (next_x < 0 || next_x >= (int)img->width || next_y < 0 || next_y >= (int)img->height || img->image[next_y][next_x] == 0) {
+              break; 
+          }
+      }
+      x = next_x;
+      y = next_y;
+  }
+  img->image[0][0] = 0; // Entrada
+  return img;
+}
+
+void Test7_FloodFill_Visual() {
+  printf("\n>> 2. TESTES VISUAIS DE FLOOD FILL (Verificar pasta Test/basic/) \n");
+  
+  // Vamos usar o índice 3 para o Amarelo
+  // (Poderia ser o 2, mas pediste o 3 e funciona igual!)
+  uint16 paint_index = 2;       
+  uint32 color_yellow = 0xFFFF00; 
+
+  // --- PARTE B: ESPIRAL ---
+  printf("\n   B. Espiral (Teste de 'Caminho de Rato'):\n");
+  
+  Image spiral = ImageCreateSpiral(50, 50);
+  
+  // Garantir espaço na LUT
+  if (spiral->num_colors <= paint_index) spiral->num_colors = paint_index + 1;
+
+  // Configurar a Tabela de Cores (Simples e Limpo)
+  spiral->LUT[0] = 0x000000;            // 0 = Preto
+  spiral->LUT[1] = 0xFFFFFF;            // 1 = Branco
+  spiral->LUT[paint_index] = color_yellow; // 2 = Amarelo
+
+  ImageSavePPM(spiral, "Test/basic/spiral_original.ppm"); 
+
+  // ImageCopy copia o num_colors e a LUT, por isso não precisamos de repetir
+
+  // 1. Recursive
+  Image s_rec = ImageCopy(spiral);
+  ImageRegionFillingRecursive(s_rec, 0, 0, paint_index);
+  ImageSavePPM(s_rec, "Test/basic/spiral_recursive.ppm");
+  printf("      [OK] Espiral Recursive -> Saved\n");
+  ImageDestroy(&s_rec);
+
+  // 2. Stack
+  Image s_stack = ImageCopy(spiral);
+  ImageRegionFillingWithSTACK(s_stack, 0, 0, paint_index);
+  ImageSavePPM(s_stack, "Test/basic/spiral_stack.ppm");
+  printf("      [OK] Espiral Stack     -> Saved\n");
+  ImageDestroy(&s_stack);
+
+  // 3. Queue
+  Image s_queue = ImageCopy(spiral);
+  ImageRegionFillingWithQUEUE(s_queue, 0, 0, paint_index);
+  ImageSavePPM(s_queue, "Test/basic/spiral_queue.ppm");
+  printf("      [OK] Espiral Queue     -> Saved\n");
+  ImageDestroy(&s_queue);
+
+  ImageDestroy(&spiral);
+}
+
 // --- FUNÇÃO MAIN ---
 
 int main(int argc, char* argv[]) { 
@@ -317,6 +415,7 @@ int main(int argc, char* argv[]) {
   Test4_SegmentationVisual();
   Test5_StressTest();
   Test6_ComplexityAnalysis();
+  Test7_FloodFill_Visual();
 
    printf("\n[WARNING] Tem de se aproximar bastante a imagem ou prestar atenção porque são diferenças mínimas\n");
 
