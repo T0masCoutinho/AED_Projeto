@@ -116,6 +116,30 @@ int main(int argc, char* argv[]) {
 
   //!-----------------------------------------------------------------------------
 
+  //!-----------------------------------------------------------------------------
+  printf("12) ImageRegionFillingWithQUEUE \n");
+  Image image_chess_queue = ImageCreateChess(150, 120, 30, 0x000000);  // black
+  // Chamar a função de preenchimento com queue
+  int filled_pixels_queue = ImageRegionFillingWithQUEUE(image_chess_queue, 0, 0, 0);
+  // Mostrar resultados
+  printf("    Píxeis pintados: %d\n", filled_pixels_queue);
+  // Guardar o resultado para comparação
+  ImageSavePPM(image_chess_queue, "filling_queue_image.ppm");
+  //!-----------------------------------------------------------------------------
+
+  printf("13) ImageSegmentation\n");
+  Image segmented_image_recursive = ImageSegmentation(image_1, ImageRegionFillingRecursive);
+  ImageSavePPM(segmented_image_recursive, "segmented_image_recursive.ppm");
+
+  Image segmented_image_stack = ImageSegmentation(image_1, ImageRegionFillingWithSTACK);
+  ImageSavePPM(segmented_image_stack, "segmented_image_stack.ppm");
+
+  Image segmented_image_queue = ImageSegmentation(image_1, ImageRegionFillingWithQUEUE);
+  ImageSavePPM(segmented_image_queue, "segmented_image_queue.ppm");
+  
+  //!-----------------------------------------------------------------------------
+
+
   printf("\n=======================================\n");
   printf(" TESTES DE COMPLEXIDADE: ImageIsEqual    (demora um bocado)\n");
   printf("=======================================\n");
