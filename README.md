@@ -19,56 +19,90 @@ O projeto já inclui a estrutura de pastas necessária para a execução. Os res
 
 ## Como Compilar
 
-Para compilar o programa, utilize o seguinte comando (garantindo que os ficheiros `imageRGB.c`, `error.c` e `instrumentation.c` estão presentes):
+    make
 
-```bash
-gcc -Wall -O2 -o imageRGBTest imageRGBTest.c imageRGB.c error.c instrumentation.c
+## Como Executar
 
-🚀 Como Executar
-Bash ./imageRGBTest
+    ./imageRGBTest
 
+## Descrição Detalhada dos Testes
 
-📋 Descrição dos Testes
-Ao executar, o programa realiza 6 baterias de testes sequenciais:
+    Dica de Visualização: Algumas alterações são subtis (ex: mudança de cor num único pixel). Recomenda-se o uso de zoom ou a verificação dos logs no terminal.
 
-1. Operações Básicas (Test1)
-O que faz: Testa a criação de imagens, cópia (ImageCopy) e operações de I/O (SavePBM/SavePPM).
+    Ao executar, o programa realiza 7 baterias de testes sequenciais:
 
-Verificação: Confirma se as imagens são gravadas corretamente na pasta Test/basic/.
+## 1. Operações Básicas (Test1)
 
-2. Flood Fill - Visual (Test2)
-O que faz: Compara visualmente os algoritmos de preenchimento: Recursivo, Stack (DFS) e Queue (BFS).
+    Objetivo: Validar a gestão de memória básica, manipulação de estruturas e I/O.
 
-Verificação: Pode abrir as imagens geradas em Test/basic/ para confirmar que o preenchimento respeita as fronteiras.
+    Descrição: Testa as funções de criação (ImageCreate), cópia profunda (ImageCopy) e gravação de ficheiros (SavePBM/SavePPM).
 
-3. Propriedades Geométricas (Test3)
-O que faz: Valida a lógica matemática das rotações.
+    Verificação: Confirma se os ficheiros são criados corretamente na pasta Test/basic/ e se são legíveis.
 
-Teste de Identidade: Confirma se rodar 90º quatro vezes (ou 180º duas vezes) devolve a imagem ao estado original.
+## 2. Flood Fill - Visual (Test2)
 
-4. Segmentação (Test4)
-O que faz: Conta regiões conexas (segmentação) num tabuleiro de xadrez gerado via código.
+    Objetivo: Garantir a correção visual dos algoritmos de preenchimento de regiões.
 
-Validação: O algoritmo deve detetar automaticamente o número exato de regiões brancas isoladas (esperado: 10).
+    Descrição: Aplica os três métodos (Recursivo, Stack/DFS, Queue/BFS) num tabuleiro de xadrez e compara os resultados.
 
-5. Stress Test (Test5)
-O que faz: Teste de performance (Tempo de CPU).
+    Verificação: As imagens geradas devem mostrar as regiões brancas (ou pretas) perfeitamente preenchidas, respeitando as fronteiras dos quadrados.
 
-Cenário: Executa operações de preenchimento em imagens de alta resolução (2000x2000) para comparar a eficiência da implementação com Stack vs Queue.
+## 3. Propriedades Geométricas (Test3)
 
-6. Casos para Análise de Complexidade (Test6)
-Gera datasets (pares de imagens) nas pastas Test/TestX para suportar a análise da função de comparação (ImageIsEqual):
+    Objetivo: Verificar a integridade matemática das operações de matriz.
 
-T1: Imagens iguais (Pior caso).
+    Descrição: Testa a identidade das rotações:
 
-T2: Diferença no primeiro pixel (Melhor caso).
+    Rodar 90º quatro vezes deve resultar na imagem original.
 
-T3: Diferença no último pixel.
+    Rodar 180º duas vezes deve resultar na imagem original.
 
-T4: Diferença no meio.
+    Resultado: O teste passa se ImageIsEqual retornar verdadeiro.
 
-T5: Imagens totalmente diferentes.
+## 4. Segmentação (Test4)
 
-🔍 Visualização dos Resultados
-Os ficheiros de saída (.ppm e .pbm) localizados na pasta Test/ podem ser visualizados utilizando ferramentas como GIMP, IrfanView ou extensões de visualização de imagem do VS Code.
-```
+    Objetivo: Validar o algoritmo de contagem de componentes conexos.
+
+    Descrição: Utiliza um tabuleiro de xadrez gerado via código (onde o número de quadrados é conhecido) e aplica a segmentação.
+
+    Verificação: O algoritmo deve retornar exatamente 10 regiões (para o tamanho de tabuleiro configurado).
+
+## 5. Test de Performance (Test5)
+
+    Objetivo: Comparar a eficiência temporal e a robustez de memória (Stack vs Queue vs Recursive).
+
+    Descrição: Executa operações de preenchimento em imagens de alta resolução (2000x2000).
+
+    Cenário: Compara o tempo de CPU entre a implementação com Stack, Queue e Recursiva (com proteções de segurança para evitar Stack Overflow na recursão).
+
+## 6. Casos para Análise de Complexidade (Test6)
+
+    Objetivo: Gerar datasets controlados para a análise empírica da função ImageIsEqual.
+
+    Descrição: Cria pares de imagens nas pastas Test/TestX representando diferentes cenários:
+
+    T1: Imagens iguais (Pior caso - percorre tudo).
+
+    T2: Diferença no primeiro pixel (Melhor caso).
+
+    T3: Diferença no último pixel.
+
+    T4: Diferença no meio.
+
+    T5: Imagens totalmente diferentes.
+
+## 7. Labirinto em Espiral - "Stress Test" Visual (Test7)
+
+    Objetivo: Demonstrar a robustez dos algoritmos em cenários de "pior caso" de caminho (profundidade máxima).
+
+    Descrição: Gera um labirinto complexo em espiral (300x300) que obriga o algoritmo a percorrer um caminho único e longo da periferia até ao centro.
+
+    Visualização: O caminho original (preto) é preenchido a Amarelo (0xFFFF00) nas imagens Test/basic/spiral\_\*.ppm.
+
+    Nota Técnica: Este teste expõe claramente as limitações da recursão simples e a eficácia das abordagens iterativas (Stack/Queue).
+
+    Aviso de Autoria (Test7): A função auxiliar ImageCreateSpiral foi incluída neste ficheiro de testes especificamente para validação extrema e robustez. Não faz parte do módulo nuclear imageRGB.c mas utiliza as suas funções para operar.
+
+## Visualização dos Resultados
+
+Os ficheiros de saída (.ppm e .pbm) localizados na pasta Test/ podem ser visualizados utilizando ferramentas como GIMP, IrfanView ou extensões de visualização de imagem do VS Code (recomendo mais por praticidade).
