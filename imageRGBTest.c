@@ -30,24 +30,24 @@ struct image {
 
 // --- FUNÇÕES AUXILIARES DE TESTE ---
 
-void Test1_BasicOperations() {
-  printf("\n>> 1. TESTES BÁSICOS DE CRIAÇÃO E I/O \n");
+void Test1_SimpleFunctions() {
+  printf("\n>> 1. TESTES BÁSICOS DE FUNÇÕES \n");
   
   Image white_image = ImageCreate(100, 100);
   printf("   [OK] ImageCreate(100, 100)\n");
 
   Image image_chess_1 = ImageCreateChess(150, 120, 30, 0x000000); 
-  ImageSavePBM(image_chess_1, "Test/basic/chess_image_1.pbm");
-  printf("   [OK] ImageCreateChess + SavePBM (Test/basic/chess_image_1.pbm)\n");
+  ImageSavePBM(image_chess_1, "Test/1/chess_image_1.pbm");
+  printf("   [OK] ImageCreateChess + SavePBM (Test/1/chess_image_1.pbm)\n");
 
   Image image_chess_2 = ImageCreateChess(20, 20, 8, 0xff0000); 
-  ImageSavePPM(image_chess_2, "Test/basic/chess_image_2.ppm");
-  printf("   [OK] ImageCreateChess (Red) + SavePPM (Test/basic/chess_image_2.ppm)\n");
+  ImageSavePPM(image_chess_2, "Test/1/chess_image_2.ppm");
+  printf("   [OK] ImageCreateChess (Red) + SavePPM (Test/1/chess_image_2.ppm)\n");
 
   Image copy_image = ImageCopy(image_chess_1);
   if (copy_image != NULL) {
-    ImageSavePBM(copy_image, "Test/basic/copy_image.pbm");
-    printf("   [OK] ImageCopy (Test/basic/copy_image.pbm)\n");
+    ImageSavePBM(copy_image, "Test/1/copy_image.pbm");
+    printf("   [OK] ImageCopy (Test/1/copy_image.pbm)\n");
   }
 
   // Limpeza
@@ -57,36 +57,8 @@ void Test1_BasicOperations() {
   ImageDestroy(&copy_image);
 }
 
-void Test2_FloodFill_Visual() {
-  printf("\n>> 2. TESTES VISUAIS DE FLOOD FILL (Verificar pasta Test/basic/) \n");
-
-  // Recursivo
-  Image img_rec = ImageCreateChess(150, 120, 30, 0x000000);
-  int pix_rec = ImageRegionFillingRecursive(img_rec, 0, 0, 0); 
-  ImageSavePPM(img_rec, "Test/basic/filling_recursive_image.ppm");
-  printf("   Recursive: %d pixeis pintados.\n", pix_rec);
-
-  // Stack
-  Image img_stack = ImageCreateChess(150, 120, 30, 0x000000);
-  int pix_stack = ImageRegionFillingWithSTACK(img_stack, 0, 0, 0);
-  ImageSavePPM(img_stack, "Test/basic/filling_stack_image.ppm");
-  printf("   Stack:     %d pixeis pintados.\n", pix_stack);
-
-  // Queue
-  Image img_queue = ImageCreateChess(150, 120, 30, 0x000000);
-  int pix_queue = ImageRegionFillingWithQUEUE(img_queue, 0, 0, 0);
-  ImageSavePPM(img_queue, "Test/basic/filling_queue_image.ppm");
-  printf("   Queue:     %d pixeis pintados.\n", pix_queue);
-
-  printf("\n   [PASSED] Foi pintada apenas uma região, como cada região tem 30x30, assim dando os 900 pixeis.\n");
-
-  ImageDestroy(&img_rec);
-  ImageDestroy(&img_stack);
-  ImageDestroy(&img_queue);
-}
-
-void Test3_GeometricProperties() {
-  printf("\n>> 3. TESTE DE PROPRIEDADES GEOMÉTRICAS \n");
+void Test2_ImageRotate() {
+  printf("\n>> 2. TESTE DE PROPRIEDADES GEOMÉTRICAS \n");
   
   Image original = ImageLoadPPM("img/feep.ppm"); 
   if (original == NULL) original = ImageCreateChess(50, 50, 10, 0x000000); 
@@ -98,7 +70,7 @@ void Test3_GeometricProperties() {
   Image r4 = ImageRotate90CW(r3); 
 
   if (ImageIsEqual(original, r4)) {
-      printf("   [PASSED] Rotate90CW x 4 == Original (Identidade)\n");
+      printf("   [PASSED] Rotate90CW x 4 == Original\n");
   } else {
       printf("   [FAILED] Rotate90CW x 4 != Original\n");
   }
@@ -108,40 +80,262 @@ void Test3_GeometricProperties() {
   Image r180_2 = ImageRotate180CW(r180_1);
 
   if (ImageIsEqual(original, r180_2)) {
-      printf("   [PASSED] Rotate180CW x 2 == Original (Identidade)\n");
+      printf("   [PASSED] Rotate180CW x 2 == Original\n");
   } else {
       printf("   [FAILED] Rotate180CW x 2 != Original\n");
   }
   
   ImageDestroy(&original);
-  ImageDestroy(&r1); ImageDestroy(&r2); ImageDestroy(&r3); ImageDestroy(&r4);
-  ImageDestroy(&r180_1); ImageDestroy(&r180_2);
+  ImageDestroy(&r1); 
+  ImageDestroy(&r2); 
+  ImageDestroy(&r3); 
+  ImageDestroy(&r4);
+  ImageDestroy(&r180_1); 
+  ImageDestroy(&r180_2);
 }
 
-void Test4_SegmentationVisual() {
-  printf("\n>> 4. TESTES VISUAIS DE SEGMENTAÇÃO (Verificar pasta Test/basic/) \n");
+void Test3_RegionFilling_Noise() {
+    printf("\n>> 3. TESTE VISUAL: FLOOD FILL COM RUÍDO (Pintar o Branco) \n");
+    printf("   A gerar ruído aleatório e a pintar a cor BRANCA...\n");
+
+    int size = 75; // Tamanho 75x75 é seguro para recursão (5625 pixeis)
+    Image img = ImageCreate(size, size);
+
+    // 1. Configurar Cores na LUT
+    uint16 paint_index = 2;
+    uint32 color_red = 0xFF0000; 
+    uint32 color_white = 0xFFFFFF;
+    uint32 color_black = 0x000000;
+
+    // Garantir espaço na paleta
+    if (img->num_colors <= paint_index) img->num_colors = paint_index + 1;
+    
+    img->LUT[0] = color_black;
+    img->LUT[1] = color_white;
+    img->LUT[2] = color_red;
+
+    // 2. Gerar Ruído
+    // Queremos MAIS BRANCOS para a tinta se espalhar mais.
+    for(uint32 y=0; y < img->height; y++) {
+        for(uint32 x=0; x < img->width; x++) {
+            int chance = rand() % 10; 
+            if (chance < 3) { 
+                // 30% de hipótese -> PRETO (Obstáculo)
+                img->image[y][x] = 0; 
+            } else {
+                // 70% de hipótese -> BRANCO (Alvo)
+                img->image[y][x] = 1;
+            }
+        }
+    }
+
+    // Garantir que o centro é branco (ponto de partida)
+    int cx = size / 2;
+    int cy = size / 2;
+    img->image[cy][cx] = 1; 
+
+    // Guardar a imagem original (para comparar depois)
+    ImageSavePPM(img, "Test/3/noise_original.ppm");
+
+    // --- 1. RECURSIVE ---
+    printf("   1. Recursive: ");
+    // Nota: 75x75 é pequeno o suficiente para não crashar, mas deixamos a proteção por coerência
+    if (size > 300) { 
+        printf("[ABORTADO - Risco de Stack Overflow]\n");
+    } else {
+        Image img_rec = ImageCopy(img);
+        ImageRegionFillingRecursive(img_rec, cx, cy, paint_index);
+        ImageSavePPM(img_rec, "Test/3/noise_recursive.ppm");
+        printf("[OK] -> Saved in Test/3/noise_recursive.ppm\n");
+        ImageDestroy(&img_rec);
+    }
+
+    // --- 2. STACK ---
+    printf("   2. Stack:     ");
+    fflush(stdout);
+    Image img_stack = ImageCopy(img);
+    ImageRegionFillingWithSTACK(img_stack, cx, cy, paint_index);
+    ImageSavePPM(img_stack, "Test/3/noise_stack.ppm");
+    printf("[OK] -> Saved in Test/3/noise_stack.ppm\n");
+    ImageDestroy(&img_stack);
+
+    // --- 3. QUEUE ---
+    printf("   3. Queue:     ");
+    fflush(stdout);
+    Image img_queue = ImageCopy(img);
+    ImageRegionFillingWithQUEUE(img_queue, cx, cy, paint_index);
+    ImageSavePPM(img_queue, "Test/3/noise_queue.ppm");
+    printf("[OK] -> Saved in Test/3/noise_queue.ppm\n");
+    ImageDestroy(&img_queue);
+
+    // Limpar a imagem base
+    ImageDestroy(&img);
+    printf("   -> Todos os resultados gerados em: Test/3/\n");
+}
+
+/*
+ * ======================================================================================
+ * FUNÇÃO: ImageCreateSpiral
+ * ======================================================================================
+ * [DESCRIÇÃO]
+ * Gera uma imagem com um padrão de espiral quadrada ("Serpentine") que converge da 
+ * periferia para o centro.
+ * Cores: 0 (Caminho/Preto), 1 (Paredes/Branco).
+ *
+ * [ORIGEM & AUTORIA]
+ * Código gerado com assistência de inteligência artificial, solicitado pelo aluno.
+ *
+ * [PROPÓSITO NO PROJETO]
+ * Esta função é estritamente auxiliar (ferramenta de teste). O seu objetivo é criar 
+ * um cenário de teste (labirinto de caminho único e longo) para validar a 
+ * robustez dos algoritmos de Flood Fill (Stack vs Queue) e garantir que lidam com 
+ * a profundidade máxima sem erro de memória (Stack Overflow).
+ * No entanto, como o código está integrado, funcional e segue as boas práticas,
+ * pode ser consultado para a robustez dos testes.
+ * ======================================================================================
+ */
+Image ImageCreateSpiral(int width, int height) {
+  Image img = ImageCreate(width, height);
+  
+  // Pintar tudo de branco (paredes)
+  for (uint32 y = 0; y < img->height; y++) {
+    for (uint32 x = 0; x < img->width; x++) {
+      img->image[y][x] = 1; 
+    }
+  }
+
+  // Escavar caminho a preto
+  int x = 0, y = 0;
+  int dx = 1, dy = 0; 
+  int max_steps = width * height; 
+
+  for (int i = 0; i < max_steps; i++) {
+      img->image[y][x] = 0; 
+
+      int next_x = x + dx;
+      int next_y = y + dy;
+      int nnx = x + 2*dx;
+      int nny = y + 2*dy;
+
+      int turn = 0;
+      if (next_x < 0 || next_x >= (int)img->width || next_y < 0 || next_y >= (int)img->height) {
+          turn = 1;
+      } 
+      else if (nnx >= 0 && nnx < (int)img->width && nny >= 0 && nny < (int)img->height && img->image[nny][nnx] == 0) {
+          turn = 1;
+      }
+
+      if (turn) {
+          int temp = dx;
+          dx = -dy;
+          dy = temp;
+          next_x = x + dx;
+          next_y = y + dy;
+          if (next_x < 0 || next_x >= (int)img->width || next_y < 0 || next_y >= (int)img->height || img->image[next_y][next_x] == 0) {
+              break; 
+          }
+      }
+      x = next_x;
+      y = next_y;
+  }
+  img->image[0][0] = 0; // entrada
+  return img;
+}
+
+void Test4_RegionFilling_spiral() {
+  printf("\n>> 4. TESTE ESPECIAL: FLOOD FILL COM ESPIRAL (LABIRINTO) \n");
+  
+  // --- CONFIGURAÇÃO ---
+  // Tamanho do Labirinto (Podes mudar aqui para testar)
+  // 300x300 = 90.000 pixeis de profundidade (máximo seguro na recursão)
+  // 500x500 = 250.000 pixeis de profundidade (Crash garantido na recursão)
+  int size = 75; 
+
+  // Limite de segurança para a Recursão. 
+  // Se 'size' for maior que isto, não executamos a recursiva para evitar SegFault.
+  int max_safe_recursion_size = 300; 
+
+  // Configuração da cor vermelha
+  uint16 paint_index = 2;       
+  uint32 color_yellow = 0xFF0000; 
+
+  printf("   [CENÁRIO] A gerar labirinto %dx%d...\n", size, size);
+  printf("             (Este é o PIOR CASO para recursão: profundidade máxima linear)\n");
+  
+  Image spiral = ImageCreateSpiral(size, size);
+  
+  // Garantir espaço na LUT e configurar cores
+  if (spiral->num_colors <= paint_index) spiral->num_colors = paint_index + 1;
+  spiral->LUT[0] = 0x000000;               // 0 = Preto
+  spiral->LUT[1] = 0xFFFFFF;               // 1 = Branco
+  spiral->LUT[paint_index] = color_yellow; // 2 = vermelho
+
+  ImageSavePPM(spiral, "Test/4/spiral_original.ppm"); 
+
+  // RECURSIVE 
+  printf("   1. Recursive: ");
+  
+  if (size > max_safe_recursion_size) {
+      // Se a imagem for muito grande, abortamos a recursão
+      printf("[ABORTADO - SAFETY CHECK]\n");
+      printf("      [ALERTA] A recursão foi ignorada propositadamente.\n");
+      printf("      Neste labirinto %dx%d, a profundidade seria %d chamadas.\n", size, size, size*size);
+      printf("      Isso causaria 'Segmentation Fault' (Stack Overflow).\n");
+  } else {
+      // Se for pequena, corremos
+      Image s_rec = ImageCopy(spiral);
+      ImageRegionFillingRecursive(s_rec, 0, 0, paint_index);
+      ImageSavePPM(s_rec, "Test/4/spiral_recursive.ppm");
+      printf("[OK] -> Saved in Test/4/spiral_recursive.ppm\n");
+      ImageDestroy(&s_rec);
+  }
+
+  // STACK 
+  printf("   2. Stack:     ");
+  fflush(stdout); 
+  Image s_stack = ImageCopy(spiral);
+  ImageRegionFillingWithSTACK(s_stack, 0, 0, paint_index);
+  ImageSavePPM(s_stack, "Test/4/spiral_stack.ppm");
+  printf("[OK] -> Saved in Test/4/spiral_stack.ppm\n");
+  ImageDestroy(&s_stack);
+
+  // QUEUE 
+  printf("   3. Queue:     ");
+  fflush(stdout);
+  Image s_queue = ImageCopy(spiral);
+  ImageRegionFillingWithQUEUE(s_queue, 0, 0, paint_index);
+  ImageSavePPM(s_queue, "Test/4/spiral_queue.ppm");
+  printf("[OK] -> Saved in Test/4/spiral_queue.ppm\n");
+  ImageDestroy(&s_queue);
+
+  ImageDestroy(&spiral);
+}
+
+void Test5_SegmentationVisual() {
+  printf("\n>> 5. TESTES VISUAIS DE SEGMENTAÇÃO (Verificar pasta Test/5/) \n");
 
   // Criar uma imagem base de Xadrez
   Image base_chess = ImageCreateChess(150, 120, 30, 0x000000);
+  ImageSavePPM(base_chess, "Test/5/segmented_original.ppm");
   
   // --- VERSÃO RECURSIVA ---
   Image seg_rec = ImageCopy(base_chess);
   int reg_rec = ImageSegmentation(seg_rec, ImageRegionFillingRecursive);
-  ImageSavePPM(seg_rec, "Test/basic/segmented_recursive.ppm");
+  ImageSavePPM(seg_rec, "Test/5/segmented_recursive.ppm");
   printf("   Recursive: %d regiões encontradas. (Gravado em segmented_recursive.ppm)\n", reg_rec);
   ImageDestroy(&seg_rec);
 
   // --- VERSÃO STACK ---
   Image seg_stack = ImageCopy(base_chess);
   int reg_stack = ImageSegmentation(seg_stack, ImageRegionFillingWithSTACK);
-  ImageSavePPM(seg_stack, "Test/basic/segmented_stack.ppm");
+  ImageSavePPM(seg_stack, "Test/5/segmented_stack.ppm");
   printf("   Stack:     %d regiões encontradas. (Gravado em segmented_stack.ppm)\n", reg_stack);
   ImageDestroy(&seg_stack);
 
   // --- VERSÃO QUEUE ---
   Image seg_queue = ImageCopy(base_chess);
   int reg_queue = ImageSegmentation(seg_queue, ImageRegionFillingWithQUEUE);
-  ImageSavePPM(seg_queue, "Test/basic/segmented_queue.ppm");
+  ImageSavePPM(seg_queue, "Test/5/segmented_queue.ppm");
   printf("   Queue:     %d regiões encontradas. (Gravado em segmented_queue.ppm)\n", reg_queue);
   ImageDestroy(&seg_queue);
   
@@ -156,8 +350,8 @@ void Test4_SegmentationVisual() {
   ImageDestroy(&base_chess);
 }
 
-void Test5_StressTest() {
-    printf("\n>> 5. STRESS TEST: Comparação de Estratégias (Imagens Grandes) \n");
+void Test6_StressTest() {
+    printf("\n>> 6. STRESS TEST: Comparação de Estratégias (Imagens Grandes) \n");
     
     // Tamanho exagerado para testar a robustez da Stack e Queue
     // 2000x2000 = 4 Milhões de pixeis.
@@ -195,7 +389,7 @@ void Test5_StressTest() {
         // Se a imagem for demasiado grande, não corremos a recursiva
         printf("      -> Teste em imagem GRANDE (%dx%d)... ", big_size, big_size);
         printf("[ABORTADO]\n");
-        printf("         [MOTIVO] O teu sistema crasharia com 2000x2000 (Segmentation Fault).\n");
+        printf("         [MOTIVO] O sistema crasharia com 2000x2000 (Segmentation Fault).\n");
         
         // provar que funciona em pequena escala
         printf("      -> Contra-prova em imagem PEQUENA (%dx%d)... ", safe_recursive_limit, safe_recursive_limit);
@@ -220,7 +414,7 @@ void Test5_StressTest() {
 
 void Test6_ComplexityAnalysisChart() {
   printf("\n=================================================================================\n");
-  printf(" 6. ANÁLISE DE COMPLEXIDADE: ImageIsEqual (Tempo MEDIO por Execucao)\n");
+  printf(" 7. ANÁLISE DE COMPLEXIDADE: ImageIsEqual (Tempo médio por Execução)               (demora um bocado)\n");
   printf("=================================================================================\n");
 
   // Configurações
@@ -326,8 +520,8 @@ void Test6_ComplexityAnalysisExample() {
   // 1. Guardar Exemplo Visual (Baseado no primeiro tamanho)
   Image A_demo = ImageCreate(sizes[0], sizes[0]);
   Image B_demo = ImageCopy(A_demo);
-  ImageSavePBM(A_demo, "Test/T1_img_iguais/T1_img1.pbm");
-  ImageSavePBM(B_demo, "Test/T1_img_iguais/T1_img2.pbm");
+  ImageSavePBM(A_demo, "Test/7/T1_img_iguais/T1_img1.pbm");
+  ImageSavePBM(B_demo, "Test/7/T1_img_iguais/T1_img2.pbm");
   ImageDestroy(&A_demo);
   ImageDestroy(&B_demo);
 
@@ -343,7 +537,7 @@ void Test6_ComplexityAnalysisExample() {
     double elapsed = cpu_time() - InstrTime;
 
     printf("%10s %18d %12.6f %12.6f %15lu\n",
-            "Test1", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
+            "T1", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
 
     ImageDestroy(&A);
     ImageDestroy(&B);
@@ -359,8 +553,8 @@ void Test6_ComplexityAnalysisExample() {
   Image C_demo = ImageCreate(sizes[0], sizes[0]);
   Image D_demo = ImageCopy(C_demo);
   D_demo->image[0][0] = 1; // Mudar o primeiro pixel
-  ImageSavePBM(C_demo, "Test/T2_dif_primeiro_pixel/T2_img1.pbm");
-  ImageSavePBM(D_demo, "Test/T2_dif_primeiro_pixel/T2_img2.pbm");
+  ImageSavePBM(C_demo, "Test/7/T2_dif_primeiro_pixel/T2_img1.pbm");
+  ImageSavePBM(D_demo, "Test/7/T2_dif_primeiro_pixel/T2_img2.pbm");
   ImageDestroy(&C_demo);
   ImageDestroy(&D_demo);
 
@@ -377,7 +571,7 @@ void Test6_ComplexityAnalysisExample() {
     double elapsed = cpu_time() - InstrTime;
 
     printf("%10s %18d %12.6f %12.6f %15lu\n",
-            "Test2", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
+            "T2", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
 
     ImageDestroy(&C);
     ImageDestroy(&D);
@@ -393,8 +587,8 @@ void Test6_ComplexityAnalysisExample() {
   Image E_demo = ImageCreate(sizes[0], sizes[0]); 
   Image F_demo = ImageCopy(E_demo);
   F_demo->image[sizes[0]-1][sizes[0]-1] = 1; // Mudar último pixel
-  ImageSavePBM(E_demo, "Test/T3_dif_ultimo_pixel/T3_img1.pbm");
-  ImageSavePBM(F_demo, "Test/T3_dif_ultimo_pixel/T3_img2.pbm");
+  ImageSavePBM(E_demo, "Test/7/T3_dif_ultimo_pixel/T3_img1.pbm");
+  ImageSavePBM(F_demo, "Test/7/T3_dif_ultimo_pixel/T3_img2.pbm");
   ImageDestroy(&E_demo);
   ImageDestroy(&F_demo);
 
@@ -411,7 +605,7 @@ void Test6_ComplexityAnalysisExample() {
     double elapsed = cpu_time() - InstrTime;
 
     printf("%10s %18d %12.6f %12.6f %15lu\n",
-            "Test3", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
+            "T3", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
 
     ImageDestroy(&E);
     ImageDestroy(&F);
@@ -427,8 +621,8 @@ void Test6_ComplexityAnalysisExample() {
   Image G_demo = ImageCreate(sizes[0], sizes[0]);
   Image H_demo = ImageCopy(G_demo);
   H_demo->image[sizes[0]/2][sizes[0]/2] = 1; // Mudar meio
-  ImageSavePBM(G_demo, "Test/T4_dif_pixel_meio/T4_img1.pbm");
-  ImageSavePBM(H_demo, "Test/T4_dif_pixel_meio/T4_img2.pbm");
+  ImageSavePBM(G_demo, "Test/7/T4_dif_pixel_meio/T4_img1.pbm");
+  ImageSavePBM(H_demo, "Test/7/T4_dif_pixel_meio/T4_img2.pbm");
   ImageDestroy(&G_demo);
   ImageDestroy(&H_demo);
 
@@ -445,7 +639,7 @@ void Test6_ComplexityAnalysisExample() {
     double elapsed = cpu_time() - InstrTime;
 
     printf("%10s %18d %12.6f %12.6f %15lu\n",
-            "Test4", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
+            "T4", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
 
     ImageDestroy(&G);
     ImageDestroy(&H);
@@ -467,8 +661,8 @@ void Test6_ComplexityAnalysisExample() {
   // Garantir diferença no inicio para consistência do teste O(1)
   J_demo->image[0][0] = !I_demo->image[0][0]; 
 
-  ImageSavePBM(I_demo, "Test/T5_img_aleatorias/T5_img1.pbm");
-  ImageSavePBM(J_demo, "Test/T5_img_aleatorias/T5_img2.pbm");
+  ImageSavePBM(I_demo, "Test/7/T5_img_aleatorias/T5_img1.pbm");
+  ImageSavePBM(J_demo, "Test/7/T5_img_aleatorias/T5_img2.pbm");
   ImageDestroy(&I_demo);
   ImageDestroy(&J_demo);
 
@@ -489,151 +683,12 @@ void Test6_ComplexityAnalysisExample() {
     double elapsed = cpu_time() - InstrTime;
 
     printf("%10s %18d %12.6f %12.6f %15lu\n",
-            "Test5", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
+            "T5", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
 
     ImageDestroy(&I);
     ImageDestroy(&J);
   }
   printf("     ------------------------------------------------------------------\n");
-}
-
-
- /*
- * ======================================================================================
- * FUNÇÃO: ImageCreateSpiral
- * ======================================================================================
- * [DESCRIÇÃO]
- * Gera uma imagem com um padrão de espiral quadrada ("Serpentine") que converge da 
- * periferia para o centro.
- * Cores: 0 (Caminho/Preto), 1 (Paredes/Branco).
- *
- * [ORIGEM & AUTORIA]
- * Código gerado com assistência de inteligência artificial, solicitado pelo aluno.
- *
- * [PROPÓSITO NO PROJETO]
- * Esta função é estritamente auxiliar (ferramenta de teste). O seu objetivo é criar 
- * um cenário de teste (labirinto de caminho único e longo) para validar a 
- * robustez dos algoritmos de Flood Fill (Stack vs Queue) e garantir que lidam com 
- * a profundidade máxima sem erro de memória (Stack Overflow).
- * No entanto, como o código está integrado, funcional e segue as boas práticas,
- * pode ser consultado para a robustez dos testes.
- * ======================================================================================
- */
-Image ImageCreateSpiral(int width, int height) {
-  Image img = ImageCreate(width, height);
-  
-  // Pintar tudo de branco (paredes)
-  for (uint32 y = 0; y < img->height; y++) {
-    for (uint32 x = 0; x < img->width; x++) {
-      img->image[y][x] = 1; 
-    }
-  }
-
-  // Escavar caminho a preto
-  int x = 0, y = 0;
-  int dx = 1, dy = 0; 
-  int max_steps = width * height; 
-
-  for (int i = 0; i < max_steps; i++) {
-      img->image[y][x] = 0; 
-
-      int next_x = x + dx;
-      int next_y = y + dy;
-      int nnx = x + 2*dx;
-      int nny = y + 2*dy;
-
-      int turn = 0;
-      if (next_x < 0 || next_x >= (int)img->width || next_y < 0 || next_y >= (int)img->height) {
-          turn = 1;
-      } 
-      else if (nnx >= 0 && nnx < (int)img->width && nny >= 0 && nny < (int)img->height && img->image[nny][nnx] == 0) {
-          turn = 1;
-      }
-
-      if (turn) {
-          int temp = dx;
-          dx = -dy;
-          dy = temp;
-          next_x = x + dx;
-          next_y = y + dy;
-          if (next_x < 0 || next_x >= (int)img->width || next_y < 0 || next_y >= (int)img->height || img->image[next_y][next_x] == 0) {
-              break; 
-          }
-      }
-      x = next_x;
-      y = next_y;
-  }
-  img->image[0][0] = 0; // entrada
-  return img;
-}
-
-void Test7_FloodFill_Visual() {
-  printf("\n>> 7. TESTE ESPECIAL: ESPIRAL (LABIRINTO) \n");
-  
-  // --- CONFIGURAÇÃO ---
-  // Tamanho do Labirinto (Podes mudar aqui para testar)
-  // 300x300 = 90.000 pixeis de profundidade (máximo seguro na recursão)
-  // 500x500 = 250.000 pixeis de profundidade (Crash garantido na recursão)
-  int size = 300; 
-
-  // Limite de segurança para a Recursão. 
-  // Se 'size' for maior que isto, não executamos a recursiva para evitar SegFault.
-  int max_safe_recursion_size = 300; 
-
-  // Configuração da cor Amarela
-  uint16 paint_index = 2;       
-  uint32 color_yellow = 0xFFFF00; 
-
-  printf("   [CENÁRIO] A gerar labirinto %dx%d...\n", size, size);
-  printf("             (Este é o PIOR CASO para recursão: profundidade máxima linear)\n");
-  
-  Image spiral = ImageCreateSpiral(size, size);
-  
-  // Garantir espaço na LUT e configurar cores
-  if (spiral->num_colors <= paint_index) spiral->num_colors = paint_index + 1;
-  spiral->LUT[0] = 0x000000;               // 0 = Preto
-  spiral->LUT[1] = 0xFFFFFF;               // 1 = Branco
-  spiral->LUT[paint_index] = color_yellow; // 2 = Amarelo
-
-  ImageSavePPM(spiral, "Test/basic/spiral_original.ppm"); 
-
-  // RECURSIVE 
-  printf("   1. Recursive: ");
-  
-  if (size > max_safe_recursion_size) {
-      // Se a imagem for muito grande, abortamos a recursão
-      printf("[ABORTADO - SAFETY CHECK]\n");
-      printf("      [ALERTA] A recursão foi ignorada propositadamente.\n");
-      printf("      Neste labirinto %dx%d, a profundidade seria %d chamadas.\n", size, size, size*size);
-      printf("      Isso causaria 'Segmentation Fault' (Stack Overflow).\n");
-  } else {
-      // Se for pequena, corremos
-      Image s_rec = ImageCopy(spiral);
-      ImageRegionFillingRecursive(s_rec, 0, 0, paint_index);
-      ImageSavePPM(s_rec, "Test/basic/spiral_recursive.ppm");
-      printf("[OK] -> Saved in Test/basic/spiral_recursive.ppm\n");
-      ImageDestroy(&s_rec);
-  }
-
-  // STACK 
-  printf("   2. Stack:     ");
-  fflush(stdout); 
-  Image s_stack = ImageCopy(spiral);
-  ImageRegionFillingWithSTACK(s_stack, 0, 0, paint_index);
-  ImageSavePPM(s_stack, "Test/basic/spiral_stack.ppm");
-  printf("[OK] -> Saved in Test/basic/spiral_stack.ppm\n");
-  ImageDestroy(&s_stack);
-
-  // QUEUE 
-  printf("   3. Queue:     ");
-  fflush(stdout);
-  Image s_queue = ImageCopy(spiral);
-  ImageRegionFillingWithQUEUE(s_queue, 0, 0, paint_index);
-  ImageSavePPM(s_queue, "Test/basic/spiral_queue.ppm");
-  printf("[OK] -> Saved in Test/basic/spiral_queue.ppm\n");
-  ImageDestroy(&s_queue);
-
-  ImageDestroy(&spiral);
 }
 
 // --- FUNÇÃO MAIN ---
@@ -652,14 +707,18 @@ int main(int argc, char* argv[]) {
   printf("===========================================\n");
 
   // Executar testes
-  Test1_BasicOperations();
-  Test2_FloodFill_Visual();
-  Test3_GeometricProperties();
-  Test4_SegmentationVisual();
-  Test5_StressTest();
+  Test1_SimpleFunctions(); 
+  Test2_ImageRotate(); 
+
+  Test3_RegionFilling_Noise();
+  Test4_RegionFilling_spiral();
+  
+  Test5_SegmentationVisual();
+
+  Test6_StressTest();
   Test6_ComplexityAnalysisChart();
-  Test6_ComplexityAnalysisExample();
-  Test7_FloodFill_Visual();
+
+  //Test6_ComplexityAnalysisExample(); DESCOMENTA PARA VER UMA ANÁLISE MAIS COMPLETA
 
    printf("\n[WARNING] Tem de se aproximar bastante a imagem ou prestar atenção porque são diferenças mínimas\n");
 
