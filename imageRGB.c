@@ -94,7 +94,6 @@ void ImageInit(void) {  ///
   InstrCalibrate();
   InstrName[0] = "pixmem";  // Instrnumber_labeled_pixels[0] will number_labeled_pixels pixel array acesses
   // Name other number_labeled_pixelsers here...
-  //! ?????????
 }
 
 // Macros to simplify accessing instrumentation number_labeled_pixelsers:
@@ -104,8 +103,6 @@ void ImageInit(void) {  ///
 // TIP: Search for PIXMEM or Instrnumber_labeled_pixels to see where it is incremented!
 
 /// Auxiliary (static) functions
-
-//! ?????
 
 static Image AllocateImageHeader(uint32 width, uint32 height) {
   // Create the header of an image data structure
@@ -798,7 +795,7 @@ int ImageRegionFillingWithSTACK(Image img, int u, int v, uint16 label) { //! AUT
   }
 
   //
-  Stack* stack = StackCreate(10000); //!
+  Stack* stack = StackCreate(10000); 
 
   // Cria uma instacia para guardar as coordenadas atuais (u,v)
   PixelCoords p = PixelCoordsCreate(u,v); 
@@ -851,7 +848,7 @@ int ImageRegionFillingWithQUEUE(Image img, int u, int v, uint16 label) { //! AUT
     return 0;
   }
 
-  Queue* queue = QueueCreate(10000); //!
+  Queue* queue = QueueCreate(10000);
 
   // Cria uma instância para guardar as coordenadas atuais (u,v)
   PixelCoords p = PixelCoordsCreate(u, v); // adiciona as coordenadas atuais (u,v) na stack

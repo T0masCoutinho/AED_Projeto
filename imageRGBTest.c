@@ -270,11 +270,13 @@ void Test4_RegionFilling_spiral() {
   Image spiral = ImageCreateSpiral(size, size);
   
   // Garantir espaço na LUT e configurar cores
-  if (spiral->num_colors <= paint_index) spiral->num_colors = paint_index + 1;
-  spiral->LUT[0] = 0x000000;               // 0 = Preto
-  spiral->LUT[1] = 0xFFFFFF;               // 1 = Branco
-  spiral->LUT[paint_index] = color_yellow; // 2 = vermelho
-
+  if (spiral->num_colors <= paint_index) {
+    spiral->num_colors = paint_index + 1;
+    spiral->LUT[0] = 0x000000;               // 0 = Preto
+    spiral->LUT[1] = 0xFFFFFF;               // 1 = Branco
+    spiral->LUT[paint_index] = color_yellow; // 2 = vermelho
+  }
+ 
   ImageSavePPM(spiral, "Test/4/spiral_original.ppm"); 
 
   // RECURSIVE 
@@ -314,6 +316,49 @@ void Test4_RegionFilling_spiral() {
   ImageDestroy(&s_queue);
 
   ImageDestroy(&spiral);
+
+  //-----------------------------------------------------------------------------//
+  //                                MAZE IMAGE
+  //-----------------------------------------------------------------------------//
+
+  Image maze_original = ImageLoadPBM("img/maze.pbm"); 
+
+  if (maze_original == NULL) {
+      printf("ERRO: img/maze.pbm nao existe.\n"); 
+      return; 
+  }
+
+  // Configurar a cor vermelha na LUT da imagem original
+  if (maze_original->num_colors <= paint_index) {
+    maze_original->num_colors = paint_index + 1;
+    maze_original->LUT[paint_index] = 0xFF0000; // Vermelho
+  }
+
+
+  // --- 1. RECURSIVE ---
+  Image img_rec = ImageCopy(maze_original); // Copia a estrutura da memória, não o ficheiro
+  ImageSavePPM(maze_original, "Test/4/maze_original.ppm");
+  ImageRegionFillingRecursive(img_rec, 25, 25, paint_index);
+  ImageSavePPM(img_rec, "Test/4/maze_recursive.ppm");
+  printf("   [OK] Recursive -> Test/4/maze_recursive.ppm\n");
+  ImageDestroy(&img_rec);
+
+  // --- 2. STACK ---
+  Image img_stack = ImageCopy(maze_original);
+  ImageRegionFillingWithSTACK(img_stack, 25, 25, paint_index);
+  ImageSavePPM(img_stack, "Test/4/maze_stack.ppm");
+  printf("   [OK] Stack     -> Test/4/maze_stack.ppm\n");
+  ImageDestroy(&img_stack);
+
+  // --- 3. QUEUE ---
+  Image img_queue = ImageCopy(maze_original);
+  ImageRegionFillingWithQUEUE(img_queue, 25, 25, paint_index);
+  ImageSavePPM(img_queue, "Test/4/maze_queue.ppm");
+  printf("   [OK] Queue     -> Test/4/maze_queue.ppm\n");
+  ImageDestroy(&img_queue);
+
+  // No fim, libertamos a original
+  ImageDestroy(&maze_original);
 }
 
 void Test5_SegmentationVisual() {
