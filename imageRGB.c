@@ -292,14 +292,15 @@ Image ImageCopy(const Image img) { //! AUTHOR: DANIEL ZAMURCA
   // cópia dos indices da LUT
   for (uint16 i = 0; i < img->num_colors; i++) {
     img_copy->LUT[i] = img->LUT[i];
-  }
-
+  } // tambem se poderia usar memcpy
+  
   // copia todos os pixeis um a um da img para a img_copy
   for (uint32 i = 0; i < img->height; i++) {      
     for (uint32 j = 0; j < img->width; j++) {
       img_copy->image[i][j] = img->image[i][j];
     }
-  }
+  } // tambem se poderia usar memcpy
+  
   return img_copy;
 }
 
@@ -666,15 +667,15 @@ Image ImageRotate90CW(const Image img) { //! AUTHOR: TOMÁS COUTINHO
   // copia a LUT e o num_colors da img para o out
   out->num_colors = img->num_colors;
   for (uint32 i = 0; i < out->num_colors; i++) {
-    out->LUT[i] = img->LUT[i];
-  }
+    out->LUT[i] = img->LUT[i]; 
+  } // tambem se poderia usar memcpy
 
 
   // Alocar memória para as linhas da nova imagem 
   // (terá 'out->height' linhas, cada uma com comprimento 'out->width')
   for (uint32 i = 0; i < out->height; i++) {
     out->image[i] = AllocateRowArray(out->width);
-  }
+  } // tambem se poderia usar memcpy
 
   // Para cada pixel da imagem original, colocamo-lo na nova posição rodada.
   // Lógica da Rotação 90º Horário (Clockwise):

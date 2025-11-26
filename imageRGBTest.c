@@ -334,7 +334,6 @@ void Test4_RegionFilling_spiral() {
     maze_original->LUT[paint_index] = 0xFF0000; // Vermelho
   }
 
-
   // --- 1. RECURSIVE ---
   Image img_rec = ImageCopy(maze_original); // Copia a estrutura da memória, não o ficheiro
   ImageSavePPM(maze_original, "Test/4/maze_original.ppm");
@@ -357,7 +356,6 @@ void Test4_RegionFilling_spiral() {
   printf("   [OK] Queue     -> Test/4/maze_queue.ppm\n");
   ImageDestroy(&img_queue);
 
-  // No fim, libertamos a original
   ImageDestroy(&maze_original);
 }
 
@@ -488,7 +486,7 @@ void Test7_ComplexityAnalysisChart() {
   printf("   [INFO] A contar operacoes reais (InstrCount) e a medir tempo medio (%d reps).\n\n", REPETICOES);
 
   printf("   +----------------------+----------------------+-----------------+----------------------+-----------------+\n");
-  printf("   |  TAMANHO (N*N)       |  COMPARACOES (T1)    |  TEMPO T1 (s)   |  COMPARACOES (T4)    |  TEMPO T4 (s)   |\n");
+  printf("   |  TAMANHO (N*N)       |  COMPARACOES (C1)    |  TEMPO C1 (s)   |  COMPARACOES (C4)    |  TEMPO C4 (s)   |\n");
   printf("   |  (Total Pixeis)      |  (Reais/InstrCount)  |  (Pior Caso)    |  (Reais/InstrCount)  |  (Caso Medio)   |\n");
   printf("   +----------------------+----------------------+-----------------+----------------------+-----------------+\n");
 
@@ -539,7 +537,7 @@ void Test7_ComplexityAnalysisChart() {
   
   printf("   +----------------------+----------------------+-----------------+----------------------+-----------------+\n");
 
-  printf("   [CONCLUSAO] Repara que o Tempo T1 cresce na mesma proporcao que o tamanho.\n");
+  printf("   [CONCLUSAO] Repara que o Tempo C1 cresce na mesma proporcao que o tamanho.\n");
   printf("               Se o tamanho quadruplica (ex: 250k -> 1M), o tempo também quadruplica.\n");
   printf("               Isto prova que o algoritmo é Linear O(N) em relação aos pixeis.\n");
 
@@ -548,9 +546,9 @@ void Test7_ComplexityAnalysisChart() {
 
 
 void Test8_ComplexityAnalysisResults() {
-  printf("\n=======================================\n");
+  printf("\n===========================================\n");
   printf(" 8. TESTES DE COMPLEXIDADE: ImageIsEqual    (demora um bocado)\n");
-  printf("=======================================\n");
+  printf("===========================================\n");
 
   // Calibrar a instrumentação para ter tempos fiáveis
   InstrName[0] = "comparisons";  
@@ -589,7 +587,7 @@ void Test8_ComplexityAnalysisResults() {
     double elapsed = cpu_time() - InstrTime;
 
     printf("%10s %18d %12.6f %12.6f %15lu\n",
-            "T1", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
+            "C1", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
 
     ImageDestroy(&A);
     ImageDestroy(&B);
@@ -623,7 +621,7 @@ void Test8_ComplexityAnalysisResults() {
     double elapsed = cpu_time() - InstrTime;
 
     printf("%10s %18d %12.6f %12.6f %15lu\n",
-            "T2", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
+            "C2", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
 
     ImageDestroy(&C);
     ImageDestroy(&D);
@@ -657,7 +655,7 @@ void Test8_ComplexityAnalysisResults() {
     double elapsed = cpu_time() - InstrTime;
 
     printf("%10s %18d %12.6f %12.6f %15lu\n",
-            "T3", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
+            "C3", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
 
     ImageDestroy(&E);
     ImageDestroy(&F);
@@ -691,7 +689,7 @@ void Test8_ComplexityAnalysisResults() {
     double elapsed = cpu_time() - InstrTime;
 
     printf("%10s %18d %12.6f %12.6f %15lu\n",
-            "T4", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
+            "C4", w*h, elapsed, elapsed / InstrCTU, InstrCount[0]);
 
     ImageDestroy(&G);
     ImageDestroy(&H);
@@ -753,11 +751,17 @@ void Test8_ComplexityAnalysisResults() {
     double elapsed = cpu_time() - InstrTime;
 
     printf("%10s %18d %12.6f %12.6f %15lu\n",
-            "T5", (int)(w*h), elapsed, elapsed / InstrCTU, InstrCount[0]);
+            "C5", (int)(w*h), elapsed, elapsed / InstrCTU, InstrCount[0]);
 
     ImageDestroy(&I);
     ImageDestroy(&J);
   }
+  printf("     ------------------------------------------------------------------\n");
+  printf("        C1 – Pior Caso (Imagens Iguais)\n");
+  printf("        C2 – Melhor Caso Teórico (Diferença no Início)\n");
+  printf("        C3 – Pior Caso (Diferença no Fim)\n");
+  printf("        C4 – Caso Médio (Diferença no Meio)\n");
+  printf("        C5 – Melhor Caso Prático (Imagens Aleatórias)\n");
   printf("     ------------------------------------------------------------------\n");
 }
 
